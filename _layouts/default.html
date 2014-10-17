@@ -26,7 +26,9 @@
 
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
+    <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
     <script>
+      /* globals $,document*/
       (function(document) {
         var toggle = document.querySelector('.sidebar-toggle');
         var sidebar = document.querySelector('#sidebar');
@@ -41,6 +43,25 @@
 
           checkbox.checked = false;
         }, false);
+
+        (function () {
+            var ctrls = $("a[data-display]");
+            for (var i=0,l=ctrls.length,ctrl, sel;i<l;i++) {
+                ctrl = $(ctrls[i]);
+                sel = ctrl.data("display");
+                if (sel) {
+                    $(sel).hide();
+                }
+            }
+            $(document).on("click", "a[data-display]", function () {
+                var self = $(this);
+                var selector = self.data("display");
+                if (selector) {
+                    $(selector).show();
+                    self.hide();
+                }
+            });
+        }());
       })(document);
     </script>
   </body>

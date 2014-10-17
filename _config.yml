@@ -21,11 +21,11 @@ permalink:           /:year/:month/:day/:title
 # Setup
 title:               朝闻夕拾
 tagline:             ''
-description:          ''
+description:         'HTML5 · AngularJS · NodeJS · Linux · Python · Git'
 url:                 http://hellohtml5.com
 baseurl:             /
 paginate:            5
-exclude:             [ README.md, newpost.rb, CNAME ]
+exclude:             [ README.md, newpost.rb, CNAME, Gemfile, Gemfile.lock, LICENSE.md ]
 
 collections:
   notes:
