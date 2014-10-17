@@ -39,7 +39,7 @@
 <!-- Toggleable sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-item">
-    <p></p>
+    <p>HTML5 · AngularJS · NodeJS · Linux · Python · Git</p>
   </div>
 
   <nav class="sidebar-nav">
@@ -108,9 +108,9 @@
       <div class="container content">
         <div class="page">
   <h1 class="page-title">标签</h1>
-  <p><a href="#angularjs">angularjs</a> </p>
+  <p><a href="#Angularjs">Angularjs</a> </p>
 
-<h2><a name="angularjs"># angularjs</a></h2>
+<h2><a name="Angularjs"># Angularjs</a></h2>
 
 <p><a href="/2014/10/16/how-angularjs-apply-works">在Angularjs里正确$apply的方法</a> <span class="pull-right">16 Oct 2014</span></p>
 
@@ -122,7 +122,9 @@
 
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
+    <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
     <script>
+      /* globals $,document*/
       (function(document) {
         var toggle = document.querySelector('.sidebar-toggle');
         var sidebar = document.querySelector('#sidebar');
@@ -137,6 +139,25 @@
 
           checkbox.checked = false;
         }, false);
+
+        (function () {
+            var ctrls = $("a[data-display]");
+            for (var i=0,l=ctrls.length,ctrl, sel;i<l;i++) {
+                ctrl = $(ctrls[i]);
+                sel = ctrl.data("display");
+                if (sel) {
+                    $(sel).hide();
+                }
+            }
+            $(document).on("click", "a[data-display]", function () {
+                var self = $(this);
+                var selector = self.data("display");
+                if (selector) {
+                    $(selector).show();
+                    self.hide();
+                }
+            });
+        }());
       })(document);
     </script>
   </body>

@@ -2,6 +2,7 @@
 _gh_pages
 _site
 .ruby-version
+/sync.sh
 
 # Numerous always-ignore extensions
 *.diff
