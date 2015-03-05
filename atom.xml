@@ -4,7 +4,7 @@
  <title>朝闻夕拾</title>
  <link href="http://hellohtml5.com/atom.xml" rel="self"/>
  <link href="http://hellohtml5.com/"/>
- <updated>2014-10-17T14:43:22+08:00</updated>
+ <updated>2015-03-05T12:06:24+08:00</updated>
  <id>http://hellohtml5.com</id>
  <author>
    <name>Mark Otto</name>
@@ -114,8 +114,8 @@
 &lt;p&gt;当我们点击test按钮时，capitalizeLastName 这个函数会就会一行一行的执行，注意我们的debugger语句，当 this.firstName(“bang”); 执行完毕后我们中断了程序。这个时候观察视图，发现视图中的firstName已经变成bang了。我们继续程序执行this.lastName(currentVal.toUpperCase()); 这句执行完毕时，lastName才被全部大写。这似乎没有什么神奇的地方。我们注意到使用这种方式。&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;在Emberjs里，所有observable的对象必须用Ember.Object.create这个工厂方法创建&lt;/li&gt;
-  &lt;li&gt;在Knockout里，observable对象须用 ko.observable 装饰&lt;/li&gt;
+  &lt;li&gt;视图更新次数频繁，每次Model的改变都会触发视图的更新。&lt;strong&gt;它更关注对象什么时候发生了变化&lt;/strong&gt;。&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;数据一致性有保证&lt;/strong&gt;，例如我在上面对firstName赋值，下面的代码要用到这个值的时候，已经知道firstName的最新的值是什么，调用 this.firstName() 即可。&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;只有理解了这两点，才能继续往下看，理解Angular的与众不同。&lt;/p&gt;
