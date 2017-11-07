@@ -5,9 +5,10 @@ kramdown:
 highlighter:         pygments
 
 # gems
-gems:
+plugins:
                      - jemoji
                      - jekyll-sitemap
+                     - jekyll-paginate
 
 # jemoji
 emoji:
