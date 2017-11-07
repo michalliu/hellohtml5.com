@@ -1,3 +1,5 @@
 source 'https://rubygems.org'
 gem 'jemoji'
 gem 'wdm'
+gem 'pygments.rb'
+gem 'jekyll-sitemap'
