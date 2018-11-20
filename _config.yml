@@ -2,6 +2,7 @@
 markdown:            kramdown
 kramdown:
   input:             GFM
+  parse_block_html:  false
 highlighter:         pygments
 
 # gems
@@ -9,6 +10,7 @@ plugins:
                      - jemoji
                      - jekyll-sitemap
                      - jekyll-paginate
+                     - jekyll-postfiles
 
 # jemoji
 emoji:
@@ -17,15 +19,15 @@ emoji:
 # Permalinks
 #
 # Use of `relative_permalinks` ensures post links from the index work properly.
-permalink:           /:year/:month/:day/:title
+permalink:           pretty
 
 # Setup
 title:               朝闻夕拾
 tagline:             ''
-description:         'HTML5 · AngularJS · NodeJS · Linux · Python · Git'
+description:         'WebRTC · AngularJS · ExoPlayer · Docker · Debian · Git'
 url:                 http://hellohtml5.com
 baseurl:             /
-paginate:            5
+paginate:            1
 exclude:             [ README.md, newpost.rb, CNAME, Gemfile, Gemfile.lock, LICENSE.md ]
 
 collections:
