@@ -4,7 +4,7 @@
  <title>朝闻夕拾</title>
  <link href="http://hellohtml5.com/atom.xml" rel="self"/>
  <link href="http://hellohtml5.com/"/>
- <updated>2015-03-05T12:06:24+08:00</updated>
+ <updated>2018-11-20T14:56:28+08:00</updated>
  <id>http://hellohtml5.com</id>
  <author>
    <name>Mark Otto</name>
@@ -13,36 +13,226 @@
 
  
  <entry>
+   <title>图片相似度计算，深入理解DCT变换以及感知哈希</title>
+   <link href="http://hellohtml5.com/2018/11/15/DCT-explained/"/>
+   <updated>2018-11-15T00:00:00+08:00</updated>
+   <id>http://hellohtml5.com/2018/11/15/DCT-explained</id>
+   <content type="html">&lt;h2 id=&quot;缘起&quot;&gt;缘起&lt;/h2&gt;
+&lt;p&gt;Android上硬件编解码一直是个老大难问题，就解码来说，硬解码本身并不困难，只要按照MediaCodec的流程开发即可。但由于系统碎片化，硬件规格不一致，硬件解码会到黑屏，花屏，绿屏之类的显示问题。为了不招致用户投诉，我们在做视频解码的时候不太敢开启硬件加速，一般会采用保守策略，即以软解为主，优先保证画面正常，但牺牲了性能。&lt;/p&gt;
+
+&lt;p&gt;一般解决这个问题的方案是使用黑(白)机型名单下发配置(如：腾讯视频)，或者暴露开关让用户手动去控制是否走硬件解码(如：bilibili)。
+使用机型黑(白)名单有一定的作用，但其问题也显而易见：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;需要浪费大量的人力，精力进行机型测试，去维护，发布名单&lt;/li&gt;
+  &lt;li&gt;覆盖度偏低，一般只覆盖TOP机型&lt;/li&gt;
+  &lt;li&gt;缺乏时效性，例如新机型上市不能及时跟进&lt;/li&gt;
+  &lt;li&gt;不一定准确，因为硬解是否成功，跟视频源也有很大关系，同一个机型可能解这个视频不成功，另外一个视频又是成功的。按照机型”一刀切”的前提是要保证视频规格一致，这样才最健壮。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;通过开关让用户切换体验太差，尤其是“抖音”之类的短视频App，总不能每个界面加个开关让用户去切换解码器这么深奥的东西吧，从用户角度讲，我为什么要关心这个什么解码器怎么设置，只要视频能正常看就行。&lt;/p&gt;
+
+&lt;p&gt;仔细思考一下，我们其实可以实现自动化的检测，即模拟人工检测流程，把样本视频各软硬解一遍，然后对比他们的解码结果(图片)就能够知道硬解码是否能跑通。解码的流程轻车熟路，那么这里的关键问题就是我们如何进行图片对比？如何量化图片的差异度？&lt;/p&gt;
+
+&lt;h2 id=&quot;图片检索技术&quot;&gt;图片检索技术&lt;/h2&gt;
+&lt;p&gt;图片对比其实跟”以图搜图”本质上是同一种技术，通常有几种做法MSE，均值哈希，色彩直方图以及OpenCV里面一些提取图像特征的高级算法，如Sift,Surf等。基于移动端的运行效率，安装包大小，以及需求本身考虑，我们放弃引入OpenCV。MSE 属于逐像素对比，对像素值要求过于严格，太简单粗暴，色彩直方图不太好量化差异度。基于以上考虑，我们选择图像哈希算法，它可以输出汉明距离，方便量化软硬解结果的差异度。&lt;/p&gt;
+
+&lt;p&gt;哈希算法有三种，平均哈希，感知哈希和差异度哈希，基于准确度考虑，我们选择实现较复杂一些的感知哈希算法。另基于性能考虑，我们在Android平台上使用C++实现算法，通过JNI接口给Java调用。Java层输入Android的Bitmap对象，输出为图片指纹，再通过对比指纹的汉明距离，我们即可判断出来解码是否正常。&lt;/p&gt;
+
+&lt;p&gt;Java层接口签名如下：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;native&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getHash&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Bitmap&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bitmap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;algorithm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;native&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getHammingDistance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hash1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hash2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;下面分析一下感知哈希实现的方法和背后的原理，使之知其然，知其所以然。&lt;/p&gt;
+
+&lt;h2 id=&quot;图片的构成&quot;&gt;图片的构成&lt;/h2&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/bird_color.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;图一&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/bird_gray_small.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;图二&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;我们知道图片由RGB三原色构成这称之为加色法，我们可以认为图片有三个维度（暂不考虑Alpha）。分析上面两幅图，图一为原图，可以发现图片里蕴含的大部分信息都是低频的，比如天空，绿叶，树枝等，他们很少变化。高频信息是小鸟的眼睛，嘴巴等细节。图二是把图一经过缩放且只保留亮度信息，可以看到这有效的移除了图片的细节，即高频信息，展示了图片的低频部分。图片的低频部分决定了图片的大体结构，高频部分则完善了图片的细节。我们在对比图片是否相似的时候，其实更关注的是中低频部分的差异度。&lt;/p&gt;
+
+&lt;p&gt;在实践中，我们可以把图片从RGB转换为YCbCr格式，只提取Y的部分参与计算，实现降维，以减少运算量。再把图片缩放到32*32大小，丢弃掉大部分高频信息。由于进行了降维和缩放，后续步骤我们的运算量已大大减少。
+把图片从空域转换到频域，我们需要使用DCT（二维离散余弦变换）。DCT也是JPEG以及H264压缩算法的核心部分，感兴趣的可以继续深入了解视频压缩算法的相关研究。&lt;/p&gt;
+
+&lt;h2 id=&quot;感知哈希与dct离散余弦变换&quot;&gt;感知哈希与DCT（离散余弦变换）&lt;/h2&gt;
+&lt;p&gt;为了让大家深入了解背后的原理，这里打算展开介绍一下DCT，以及它为什么能检测出来图片的相似程度。本文恐怕是网络上能找到讲解DCT最详细的一篇文章了，如果你对背后的原理不感兴趣，也可以直接跳过。&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;从空域到频域&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;DCT由如下的公式定义，N和M为矩阵的行数和列数
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{equation}
+F(u, v) = \left (\frac{2}{N} \right )^{\frac{1}{2}} \left (\frac{2}{M} \right )^{\frac{1}{2}} C(u)C(v) \sum_{i=0}^{N-1}\sum_{j=0}^{M-1} f(i,j)cos\left [\frac{\left(2i+1\right)u\pi}{2N} \right ]cos\left [\frac{\left(2j+1\right)v\pi}{2N} \right ]
+\end{equation}\\
+C(\varepsilon) =
+\begin{cases}
+\frac{1}{\sqrt{2}}&amp; \text{for}\ \varepsilon = 0\\
+1&amp; \varepsilon&gt;0
+\end{cases}\\ %]]&gt;&lt;/script&gt;
+其中：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;u,v = 离散频率变量(0,1,2…7)&lt;/li&gt;
+  &lt;li&gt;f(i,j) = 图像在i行j列的像素值&lt;/li&gt;
+  &lt;li&gt;F(u,v) = DCT结果&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;我们先研究一个最简单的场景，假设图片像素值如下：
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{bmatrix}
+1&amp;3\\2&amp;0
+\end{bmatrix} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;当N和M都为2时，上述公式可简化为：&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\begin{equation}
+F(u,v) = C(u)C(v) \sum_{i=0}^{1}\sum_{j=0}^{1} f(i,j)cos\left [\frac{\left(2i+1\right)u\pi}{4} \right] cos\left [\frac{\left(2j+1\right)v\pi}{4} \right]
+
+\end{equation}&lt;/script&gt;
+
+&lt;p&gt;下面我们来计算二维DCT&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{align}
+F(0,0) &amp;= \frac{1}{2}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)\\
+&amp;=\frac{1}{2}\left [1+3+2+0\right]\\
+&amp;=3\\
+F(0,1) &amp;= \frac{1}{\sqrt{2}}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*cos(0)*cos\left(\frac{\left(2j+1\right)\pi}{4}\right)\\
+&amp;= \frac{1}{\sqrt{2}}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*1*cos\left(\frac{\left(2j+1\right)\pi}{4}\right)\\
+&amp;= \frac{1}{\sqrt{2}}\left[1*cos(\frac{\pi}{4})+2*cos(\frac{\pi}{4})+3*cos(\frac{3\pi}{4})+0\right]\\
+&amp;=0\\
+F(1,0) &amp;= \frac{1}{\sqrt{2}}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*cos\left(\frac{\left(2i+1\right)\pi}{4}\right)*cos(0)\\
+&amp;= \frac{1}{\sqrt{2}}\left[1*cos(\frac{\pi}{4})+2*cos(\frac{3\pi}{4})+3*cos(\frac{\pi}{4})+0\right]\\
+&amp;=1\\
+F(1,1) &amp;= \sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*cos\left(\frac{\left(2i+1\right)\pi}{4}\right)*cos\left(\frac{\left(2j+1\right)\pi}{4}\right)\\
+&amp;= 1*cos(\frac{\pi}{4})*cos(\frac{\pi}{4})+2*cos(\frac{3\pi}{4})*cos(\frac{\pi}{4})+3*cos(\frac{\pi}{4})*cos(\frac{3\pi}{4})+0\\
+&amp;=-2\\
+\end{align} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;即，结果是：
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{bmatrix}
+3&amp;0\\1&amp;-2
+\end{bmatrix} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;用Python的相关模块可以交叉验证我们的计算结果：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;np&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;scipy.fftpack&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dct&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matrix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]])&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dct&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dct&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;axis&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;norm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;ortho&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;axis&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;norm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;ortho&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([[&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;3.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+       &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;1.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;2.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]])&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;在实践上，上述方式的计算效率不高，更加简便的计算方式是使用DCT矩阵：
+&lt;!--https://www.zybuluo.com/knight/note/96093--&gt;&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+T_{i,j}=\left\{
+\begin{array}{lcr}
+\frac{1}{\sqrt{N}}       &amp; {if\ i=0}\\
+\sqrt{\frac{2}{N}}cos\left[\frac{(2j+1)i\pi}{2N}\right]   &amp; {if\ i&gt;0}\\
+\end{array} \right. %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;若N取2，得到DCT矩阵
+&lt;!--https://www.cnblogs.com/houkai/p/3399646.html--&gt;
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{vmatrix}
+\frac{1}{\sqrt{2}} &amp; \frac{1}{\sqrt{2}} \\
+cos(\frac{\pi}{4}) &amp; cos(\frac{3\pi}{4})
+\end{vmatrix} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;若N取8，得到的矩阵是这样的&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_matrix8.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;8*8 DCT矩阵&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;其中i=0时，即第0行，称为DC分量，i=1-7成为AC分量，用图表形式表示如下&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_1.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=1&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_2.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=2&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_3.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=3&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_4.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=4&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_5.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=5&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_6.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=6&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:45%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_row_7.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;i=7&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;有这样一个矩阵的话，我们再进行DCT变换就非常简单了：&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;D=TMT^T&lt;/script&gt;
+
+&lt;p&gt;其中：&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;T = DCT矩阵&lt;/li&gt;
+  &lt;li&gt;M = 图像数据&lt;/li&gt;
+  &lt;li&gt;D = DCT结果&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;这是对一张8*8图片应用DCT变换得到的矩阵结果：&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:60%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_output8.png&quot; /&gt;&lt;/div&gt;
+
+&lt;p&gt;这个矩阵最左上角是低频信息，右下角是高频信息。有个神奇的东西叫基准样式。&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:60%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/dct_basis_pattern8.png&quot; /&gt;&lt;/div&gt;
+
+&lt;p&gt;信不信由你，任意一张8*8的图，都可以由标准图中的的小图以一定比例叠加而合成，而每个小图的权重，由DCT变换得到的矩阵决定，是不是很有意思。DCT变换后左上角一般是比较大的数字，而右下角一般是比较小的数字，这暗含了图片中低频信息占的比重较多，因此我们在做图片或者视频编码压缩的时候，正是通过量化舍弃右下角的高频信息，来实现信息的压缩。&lt;/p&gt;
+
+&lt;h2 id=&quot;图片差异度&quot;&gt;图片差异度&lt;/h2&gt;
+&lt;p&gt;我们在对比图片差异的时候，正是通过对比频域信息来实现的。在我们的实现中，首先把软硬件解码后的图片转成YCbCr格式，只提取其中的Y，实现降维，再把图片缩放到32*32大小，进一步减少运算量，同时舍弃了一部分高频信息。再应用32*32的DCT把图片转换到频域，从频域矩阵中提取8*8中低频区域的系数，计算算数平均值。&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;D = \frac{\sum_{i=2}^{9}\sum_{j=2}^{9}f(i,j)}{64}&lt;/script&gt;
+
+&lt;p&gt;矩阵中的每个值再与D比较，大于D计1，小于D计0，按位存储，我们即可得到一个图片指纹。通过计算两个图片指纹的差异，我们就可以得到可以量化图片差异度的数字。
+当差异为0时，我们认为两张图片完全一样，差异越大，表明图片越不相似。对于解码出现绿屏，花屏的情况，我们可以有效的检测出来。&lt;/p&gt;
+
+&lt;p&gt;绿屏案例，相似度24:&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:40%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/case1.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;hash:89969d7f616c8199&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:40%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/case2.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;hash:17169efefecc8040&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;花屏案例，相似度20:&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:40%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/case3.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;hash:9ab6bf6441491b99&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:40%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/case4.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;hash:9ea72d6019e61b1e&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;检测Demo截图:&lt;/p&gt;
+&lt;div class=&quot;image-wrapper&quot; style=&quot;width:40%;&quot;&gt;&lt;img src=&quot;/2018/11/15/DCT-explained/demo.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;Demo截图&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
    <title>在Angularjs里正确$apply的方法</title>
-   <link href="http://hellohtml5.com/2014/10/16/how-angularjs-apply-works"/>
+   <link href="http://hellohtml5.com/2014/10/16/how-angularjs-apply-works/"/>
    <updated>2014-10-16T00:00:00+08:00</updated>
    <id>http://hellohtml5.com/2014/10/16/how-angularjs-apply-works</id>
-   <content type="html">&lt;h1 id=&quot;section&quot;&gt;数据视图绑定原理&lt;/h1&gt;
+   <content type="html">&lt;h1 id=&quot;数据视图绑定原理&quot;&gt;数据视图绑定原理&lt;/h1&gt;
 &lt;p&gt;我们都知道Angularjs的数据-视图绑定功能，如下面的这个视图&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-controller=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Ctrl&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;ng-controller&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Ctrl&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
   {{message}}
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;hello world&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;如果我们想在隔段时间后更新message，那么我们向controller添加如下代码&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;hello world&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;setTimeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(){&lt;/span&gt;
        &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;update hello world&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;我们期待两秒后message会更新，但实际情况并非如此。这与Angularjs数据绑定的实现机制有关系。其实要实现数据绑定，也就是得到数据改变的通知，最容易想到的有两种思路。&lt;/p&gt;
 
-&lt;h2 id=&quot;api&quot;&gt;原生API&lt;/h2&gt;
+&lt;h2 id=&quot;原生api&quot;&gt;原生API&lt;/h2&gt;
 &lt;p&gt;即Object.watch(Mozilla)，Object.observe。 这个方法适用于最新的js解释器，在V8下可以写如下代码，观察对象的属性的变化。优点是性能最好，所有对象都能够实现监控，缺点是兼容性问题。&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;x&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;x&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
 &lt;span class=&quot;nb&quot;&gt;Object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;observe&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;infos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
 	&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;infos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
 	&lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot; changed&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -50,27 +240,27 @@
 &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;c1&quot;&gt;//输出&lt;/span&gt;
-&lt;span class=&quot;s2&quot;&gt;&amp;quot;x changed&amp;quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;s2&quot;&gt;&amp;quot;x changed&amp;quot;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;在回调函数中监控&lt;/h2&gt;
+&lt;h2 id=&quot;在回调函数中监控&quot;&gt;在回调函数中监控&lt;/h2&gt;
 
 &lt;p&gt;这个很好理解，我们要求调用者写代码时&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;要写成&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;x&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;x&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;那么 a 就是这么个对象&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt; 
          &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
          &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
          &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;key&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot; changed&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;我们在a的set方法中埋一个钩子，就可以监控到a的属性改变，这个方法的优点是容易实现，也很容易理解。缺点也显而易见。&lt;/p&gt;
 
@@ -88,12 +278,12 @@
 
 &lt;p&gt;另外一个需要关注的问题是Model的触发视图的更新时机，在Knockout官网上里有如下例子：&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;First name: &lt;span class=&quot;nt&quot;&gt;&amp;lt;strong&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text: firstName&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;todo&lt;span class=&quot;nt&quot;&gt;&amp;lt;/strong&amp;gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;Last name: &lt;span class=&quot;nt&quot;&gt;&amp;lt;strong&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text: lastName&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;todo&lt;span class=&quot;nt&quot;&gt;&amp;lt;/strong&amp;gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;Fullname: &lt;span class=&quot;nt&quot;&gt;&amp;lt;strong&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text: fullName&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;todo&lt;span class=&quot;nt&quot;&gt;&amp;lt;/strong&amp;gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;click: capitalizeLastName&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;test&lt;span class=&quot;nt&quot;&gt;&amp;lt;/button&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-html&quot; data-lang=&quot;html&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;First name: &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;strong&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text: firstName&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;todo&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;Last name: &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;strong&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text: lastName&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;todo&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;Fullname: &lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;strong&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text: fullName&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;todo&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;button&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-bind&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;click: capitalizeLastName&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;test&lt;span class=&quot;p&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;button&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;// This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;AppViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;firstName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ko&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;observable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Bert&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;lastName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;ko&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;observable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;Bertington&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
@@ -109,7 +299,7 @@
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 
 &lt;span class=&quot;c1&quot;&gt;// Activates knockout.js&lt;/span&gt;
-&lt;span class=&quot;nx&quot;&gt;ko&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;applyBindings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;AppViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;nx&quot;&gt;ko&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;applyBindings&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;AppViewModel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;());&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;当我们点击test按钮时，capitalizeLastName 这个函数会就会一行一行的执行，注意我们的debugger语句，当 this.firstName(“bang”); 执行完毕后我们中断了程序。这个时候观察视图，发现视图中的firstName已经变成bang了。我们继续程序执行this.lastName(currentVal.toUpperCase()); 这句执行完毕时，lastName才被全部大写。这似乎没有什么神奇的地方。我们注意到使用这种方式。&lt;/p&gt;
 
@@ -120,7 +310,7 @@
 
 &lt;p&gt;只有理解了这两点，才能继续往下看，理解Angular的与众不同。&lt;/p&gt;
 
-&lt;h2 id=&quot;angular&quot;&gt;Angular的方式&lt;/h2&gt;
+&lt;h2 id=&quot;angular的方式&quot;&gt;Angular的方式&lt;/h2&gt;
 
 &lt;p&gt;Angular看这个问题的角度很新颖，Angular的绑定不用制造特殊对象，任何对象它都支持绑定，它的原理大致是这样的。&lt;/p&gt;
 
@@ -128,30 +318,30 @@
 
 &lt;p&gt;这里我们看到Angularjs跟上面方式的区别，&lt;strong&gt;Angular不关注对象什么时候发生了变化，关注的是事件引起了那些变化&lt;/strong&gt;。在该事件结束后，统一刷新界面。这样做的好处是不会产生过多的视图渲染，假设我们要做一个聊天消息列表，我们可以写如下代码，而不用担心聊天界面被渲染两次，毕竟每次渲染需要大量的CPU计算，给用户的感觉会“卡”。&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// 以下代码在某个$http回调中&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;c1&quot;&gt;// 以下代码在某个$http回调中&lt;/span&gt;
 &lt;span class=&quot;nx&quot;&gt;scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msgList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msgList&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;concat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;newMsgList&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//第一次赋值&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;msgListLength&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msgList&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msgList&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msgList&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;slice&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msgListLength&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;200&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;msgListLength&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 第二次赋值，只保留200条最新消息&lt;/span&gt;
 
-&lt;span class=&quot;c1&quot;&gt;// 对msgList的操作不会引起View的重绘&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;c1&quot;&gt;// 对msgList的操作不会引起View的重绘&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;我们虽然对msgList进行了两次赋值，但是真正的渲染只会在$http结束后渲染一次。&lt;br /&gt;
+&lt;p&gt;我们虽然对msgList进行了两次赋值，但是真正的渲染只会在$http结束后渲染一次。
 下面我们结合代码更加详细的分析一下这个过程。
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/sorise/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/sorise/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
 在视图中，我们声明了两个watcher，a和b。我们这时点击test按钮，我们可以想象代码中最后会执行$scope.$digest()方法。为了证明它真的是这样工作的，我们打开调试器，当代码中断在debugger语句时，$scope.a已经发生了变化，但是视图并未立即更新。而是在xxClick执行完毕后更新（实际上是在$digest后更新，而$digest是由本文的主角$apply触发）。&lt;/p&gt;
 
 &lt;p&gt;然后请大家想两个问题：&lt;/p&gt;
 
 &lt;ol&gt;
   &lt;li&gt;
-    &lt;p&gt;我们知道具体什么时候a发生了变化吗？&lt;a href=&quot;javascript:void(0);&quot; data-display=&quot;.answser1&quot;&gt;显示答案&lt;/a&gt;&lt;br /&gt;
+    &lt;p&gt;我们知道具体什么时候a发生了变化吗？&lt;a href=&quot;javascript:void(0);&quot; data-display=&quot;.answser1&quot;&gt;显示答案&lt;/a&gt;
  &lt;span class=&quot;answser1&quot;&gt;我们不知道精确的时间，但是我们知道是在xxClick后我们通过检查与旧值的对比，发现a发生了变化。在knockout中我们可以知道一个对象改变的精确时间，在Angular里，我们不知道。除非你刻意写代码，在每个改变a的地方打个时间戳。&lt;/span&gt;&lt;/p&gt;
   &lt;/li&gt;
   &lt;li&gt;
-    &lt;p&gt;我们是怎么知道我们监控了那些对象？&lt;a href=&quot;javascript:void(0);&quot; data-display=&quot;.answser2&quot;&gt;显示答案&lt;/a&gt;&lt;br /&gt;
- &lt;span class=&quot;answser2&quot;&gt;有两种办法:&lt;/span&gt;&lt;br /&gt;
- &lt;span class=&quot;answser2&quot;&gt;1. 我们看到$scope下有a,b,c三个属性，那么我们是否需要监控a,b,c三个值得变化呢，要解答这个问题要看View，在View中我们只引用了a和b，并没有涉及到c，所以只有a和b两个watcher。&lt;/span&gt;&lt;br /&gt;
- &lt;span class=&quot;answser2&quot;&gt;2. 使用$scope.$watch(“c”, function () {}) 这样我们通过代码的方式手工增加了一个watcher。&lt;/span&gt;&lt;br /&gt;
+    &lt;p&gt;我们是怎么知道我们监控了那些对象？&lt;a href=&quot;javascript:void(0);&quot; data-display=&quot;.answser2&quot;&gt;显示答案&lt;/a&gt;
+ &lt;span class=&quot;answser2&quot;&gt;有两种办法:&lt;/span&gt;
+ &lt;span class=&quot;answser2&quot;&gt;1. 我们看到$scope下有a,b,c三个属性，那么我们是否需要监控a,b,c三个值得变化呢，要解答这个问题要看View，在View中我们只引用了a和b，并没有涉及到c，所以只有a和b两个watcher。&lt;/span&gt;
+ &lt;span class=&quot;answser2&quot;&gt;2. 使用$scope.$watch(“c”, function () {}) 这样我们通过代码的方式手工增加了一个watcher。&lt;/span&gt;
  &lt;span class=&quot;answser2&quot;&gt;注：实际上，我们监控的对象也可以是一个表达式，例如，但是它们本质上是一样的，只要a发生了变化，就将这个表达式重新计算，计算结果更新到视图上。&lt;/span&gt;&lt;/p&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
@@ -164,12 +354,12 @@
 
 &lt;p&gt;注：我们也可以把a也理解为一个expression，即(a)&lt;/p&gt;
 
-&lt;h1 id=&quot;angular-1&quot;&gt;Angular里的数据视图绑定&lt;/h1&gt;
+&lt;h1 id=&quot;angular里的数据视图绑定&quot;&gt;Angular里的数据视图绑定&lt;/h1&gt;
 &lt;p&gt;通过上文，我们了解了Angular中model到view的data binding的实现，现在回到开头的问题，在Angular中怎么正确的进行视图更新。通过上面的原理我们知道，其实只需要触发$digest就可以了，我么可以通过调用$scope.$digest();实现界面刷新。
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/lepoya/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/lepoya/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
 但是直接$digest是有一定风险的，因为$digest是会抛异常（还记得那个10次限制吗）。所以我们一般直接调用$apply，我们看Angular里$apply的源码&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;nx&quot;&gt;$apply&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;expr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$apply&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;expr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
           &lt;span class=&quot;nx&quot;&gt;beginPhase&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;$apply&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
           &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$eval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;expr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
@@ -184,35 +374,35 @@
             &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
           &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
         &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;我们看到$apply可以触发$digest，并且捕捉了异常，因此有下面代码达到同样的效果
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/sasudo/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
-注意我们使用$apply触发刷新，这样相对来说就比较安全了，它会处理$digest的异常。&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/sasudo/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
+注意我们使用$apply触发刷新，这样相对来说就比较安全了，它会处理$digest的异常。
 我们注意到，$apply还可以接受一个js expression，因此下面这种写法也是可以的
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/cicuv/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/cicuv/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
 或者
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/zulumu/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
-它们的区别就是，&lt;strong&gt;在$apply里的expression异常会被Angularjs捕捉处理，不会导致整个Angular应用的崩溃&lt;/strong&gt;，这一点儿对一个webapp来说是至关重要的。&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/zulumu/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
+它们的区别就是，&lt;strong&gt;在$apply里的expression异常会被Angularjs捕捉处理，不会导致整个Angular应用的崩溃&lt;/strong&gt;，这一点儿对一个webapp来说是至关重要的。
 但是这样做有时候还会有问题，有时候我们会遇到这个错误 &lt;strong&gt;“$digest already in progress”&lt;/strong&gt; 这是怎么回事呢。&lt;/p&gt;
 
-&lt;h1 id=&quot;digest&quot;&gt;处理$digest错误&lt;/h1&gt;
+&lt;h1 id=&quot;处理digest错误&quot;&gt;处理$digest错误&lt;/h1&gt;
 &lt;p&gt;Angular里有许多内置的directive，这些directive会自动的执行$apply，比如$timeout，$http这些常用的模块
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/xoxoti/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/xoxoti/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
 在这些内置的directive里，我们不需要手动$apply，Angular会自动帮我们做。我们的上述代码，实际上相当于如下&lt;strong&gt;想象的&lt;/strong&gt;代码(注意注释的代码)， 使用Promise很容易实现。&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;hello&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;$timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&amp;quot;world&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
      &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;cm&quot;&gt;/*.always(function () { $scope.$apply(); });*/&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;在实际项目中，我们经常需要使用外部库jQuery等与Angular结合，以提高性能，或者方便的实现Angular中没有的功能。
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/piromo/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/piromo/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
 updateMsg是一个公共方法，有可能在Angular的directive里调用，也有可能在jquery的回调函数里调用，$http请求完成后会执行我们代码中的$apply()，之前也说过$http方法是会自动$apply的，所以等于是&lt;strong&gt;在$apply里又执行了$apply&lt;/strong&gt;，发生状态错误。所以就会出现&lt;strong&gt;“$digest already in progress”&lt;/strong&gt; 的错误，但在jquery的click回调里没有这个问题。 这种场景在Angular和jquery混用的时候是非常常见的。那么我们如何简单方便的解决这个问题呢，答案非常简单:&lt;/p&gt;
 
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Ctrl&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;$timeout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;$scope&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;hello&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   
     &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;updateMsg&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -226,10 +416,10 @@ updateMsg是一个公共方法，有可能在Angular的directive里调用，也�
   
     &lt;span class=&quot;nx&quot;&gt;$http&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;/&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;success&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;updateMsgWrapper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;#test&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;click&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;updateMsgWrapper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;相信我啰嗦了这么多，大家都明白为什么这样做能解决问题了。这样做的好处是没有额外的代码，并且兼容angular和Non-Angular的情况。流行的还有一种方法，过于geek，不推荐使用，仅供参考:
-&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/sohuli/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;&lt;br /&gt;
+&lt;a class=&quot;jsbin-embed&quot; href=&quot;http://jsbin.com/sohuli/1/embed?js,output&quot;&gt;JS Bin&lt;/a&gt;
 $$phase保存$digest状态机的当前状态。&lt;/p&gt;
 
 &lt;script src=&quot;http://static.jsbin.com/js/embed.js&quot;&gt;&lt;/script&gt;

@@ -11,9 +11,7 @@
 
   <title>
     
-        
-            朝闻夕拾
-        
+      图片相似度计算，深入理解DCT变换以及感知哈希 &middot; 朝闻夕拾
     
   </title>
 
@@ -52,7 +50,7 @@
   </div>
 
   <nav class="sidebar-nav">
-    <a class="sidebar-nav-item active" href="/">Home</a>
+    <a class="sidebar-nav-item" href="/">Home</a>
 
     
 
@@ -123,18 +121,10 @@
       </div>
 
       <div class="container content">
-        <div class="posts">
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="/2018/11/15/DCT-explained/">
-        图片相似度计算，深入理解DCT变换以及感知哈希
-      </a>
-    </h1>
-
-    <span class="post-date">15 Nov 2018</span>
-
-    <h2 id="缘起">缘起</h2>
+        <div class="post">
+  <h1 class="post-title">图片相似度计算，深入理解DCT变换以及感知哈希</h1>
+  <span class="post-date">15 Nov 2018</span>
+  <h2 id="缘起">缘起</h2>
 <p>Android上硬件编解码一直是个老大难问题，就解码来说，硬解码本身并不困难，只要按照MediaCodec的流程开发即可。但由于系统碎片化，硬件规格不一致，硬件解码会到黑屏，花屏，绿屏之类的显示问题。为了不招致用户投诉，我们在做视频解码的时候不太敢开启硬件加速，一般会采用保守策略，即以软解为主，优先保证画面正常，但牺牲了性能。</p>
 
 <p>一般解决这个问题的方案是使用黑(白)机型名单下发配置(如：腾讯视频)，或者暴露开关让用户手动去控制是否走硬件解码(如：bilibili)。
@@ -317,19 +307,33 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
 <div class="image-wrapper" style="width:40%;"><img src="/2018/11/15/DCT-explained/demo.png" /><p class="image-caption">[&nbsp;<span>Demo截图&nbsp;</span>]</p></div>
 
 
+  <div class="tags">
+    <a href="https://github.com/michalliu/hellohtml5.com/edit/master/_posts/2018-11-15/2018-11-15-DCT-explained.md" class="pull-right">編輯文章</a> <a href="/tag/#CV">#CV</a> 
   </div>
-  
 </div>
 
 <div class="pagination">
   
-    <a class="pagination-item older" href="/page2">Older</a>
+  <a class="pagination-item older" href="/2014/10/16/how-angularjs-apply-works/">在Angularjs里正确$apply的方法</a>
   
   
-    <span class="pagination-item newer">Newer</span>
+  <span class="pagination-item newer">Newer</span>
   
 </div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'zwxs'; // required: replace example with your forum shortname
 
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    
 
       </div>
     </div>
