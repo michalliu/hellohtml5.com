@@ -1,8 +1,11 @@
 ---
 layout: page
 title: 关于
+title2: About Me
 permalink: /about/
 ---
+
+My name is LYF. I'm a software engineer living at ShenZhen. I have years of experience on fullstack web development. For the last couple of years, I developes Android Apps. The name of the blog comes from an essays Dawn Blossoms Plucked at Dusk(Zhao Hua Xi Shi) written by [LuXun](https://en.wikipedia.org/wiki/Lu_Xun) at 1932.
 
 Project
 --------
