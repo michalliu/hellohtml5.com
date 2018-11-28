@@ -3,6 +3,7 @@ layout: post
 title: 在Angularjs里正确$apply的方法
 tags:
     - AngularJS
+categories: [Tech]
 ---
 数据视图绑定原理
 ===============

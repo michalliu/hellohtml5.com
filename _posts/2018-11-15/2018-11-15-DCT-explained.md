@@ -3,6 +3,7 @@ layout: post
 title: 图片相似度计算，深入理解DCT变换以及感知哈希
 tags:
     - CV
+categories: [Tech]
 ---
 缘起
 -------------------------------------------------
@@ -143,7 +144,7 @@ $$
 若N取8，得到的矩阵是这样的
 {% include image.html img="dct_matrix8.png" caption="8*8 DCT矩阵" %}
 
-其中i=0时，即第0行，称为DC分量，i=1-7成为AC分量，用图表形式表示如下
+其中i=0时，即第0行，我们称为DC分量或直流分量，i=1-7 我们称为AC分量或交流分量，用图表形式表示如下
 {% include image.html img="dct_row_1.png" attr="width:45%;" caption="i=1" %}
 {% include image.html img="dct_row_2.png" attr="width:45%;" caption="i=2" %}
 {% include image.html img="dct_row_3.png" attr="width:45%;" caption="i=3" %}
