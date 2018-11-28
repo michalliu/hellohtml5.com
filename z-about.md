@@ -12,7 +12,7 @@ Project
 
 [gvimim](https://github.com/michalliu/gvimim) [gvimim-macvim](https://github.com/michalliu/gvimim-macvim) [jsruntime.vim](https://github.com/michalliu/jsruntime.vim) [jsoncodecs](https://github.com/michalliu/jsoncodecs.vim) [jsflakes.vim](https://github.com/michalliu/jsflakes.vim) [sourcebeautify.vim](https://github.com/michalliu/sourcebeautify.vim) [haml-instant](https://github.com/michalliu/haml-instant) As a VIM fans, I created series of projects related with VIM.
 
-[exoplayer2-mediaplayer-extension](https://github.com/michalliu/exoplayer2-mediaplayer-extension) [exoplayer2-hevc-extension](https://github.com/michalliu/exoplayer2-hevc-extension) [ExoPlayer2](https://github.com/michalliu/Google_ExoPlayer) ExoPlayer is one of my favorite projects, I did some of my work on it.
+[exoplayer2-mediaplayer-extension](https://github.com/michalliu/exoplayer2-mediaplayer-extension) [exoplayer2-hevc-extension](https://github.com/michalliu/exoplayer2-hevc-extension) [ExoPlayer2](https://github.com/michalliu/Google_ExoPlayer) ExoPlayer is one of my favorite projects, I did some of work on it.
 
 Speech
 ------
