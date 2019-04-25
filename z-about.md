@@ -25,5 +25,7 @@ Contact
 --------
 GitHub: [michalliu](https://github.com/michalliu)
 
+StackOverflow: [me](https://stackoverflow.com/users/897889/)
+
 Email: michalliu AT foxmail DOT com
 
