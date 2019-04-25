@@ -6,7 +6,7 @@ tags: Misc
 ---
 If you google "capslock delay mac", you will see a lot of people is sufferred by this **Feature**. and it turns out there is no builtin method to turn the feature off.
 
-Here is my way i'd like to sharing. May be this is the simplest way you can ever found on the internet and it is totally free! The solution supports all mac versions in theoretical and my OS is Sierra 10.12.6.
+Here is my way i'd like to share. May be this is the simplest way you can ever found on the internet and it is totally free! The solution supports all mac versions in theoretical and my OS is Sierra 10.12.6.
 
 
 The Reciepe
