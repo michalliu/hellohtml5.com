@@ -110,6 +110,8 @@
     <p>
       &copy; 2019. All rights reserved.
     </p>
+    <p id="home-qr-code" style="width:110px;height:110px;background:#fff;padding:5px 0px 0px 5px;">
+    </p>
   </div>
 </div>
 
@@ -159,6 +161,7 @@
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
     <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
+    <script src="https://larsjung.de/jquery-qrcode/latest/jquery-qrcode-0.16.0.js"></script>
     <script>
       /* globals $,document*/
       (function(document) {
@@ -195,8 +198,22 @@
             });
         }());
       })(document);
+
+    $(function() {
+        $("#home-qr-code").qrcode({
+            render: "image",
+            background: "#fff",
+            size: 100,
+            mode: 0,
+            radius:0.5,
+            fontname: 'Ubuntu',
+            fontcolor: '#000',
+            text: "http://hellohtml5.com"
+        });
+		
+    });
     </script>
-	<script type="text/javascript"
-			src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   </body>
 </html>

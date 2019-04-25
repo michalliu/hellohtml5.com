@@ -110,6 +110,8 @@
     <p>
       &copy; 2019. All rights reserved.
     </p>
+    <p id="home-qr-code" style="width:110px;height:110px;background:#fff;padding:5px 0px 0px 5px;">
+    </p>
   </div>
 </div>
 
@@ -316,9 +318,10 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
   <div class="tags">
     <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2018-11-15/2018-11-15-DCT-explained.md" class="pull-right">文章源码</a> <a href="/tag/#CV">#CV</a> 
   </div>
+  <div class="pull-right" id="page-qr-code" style="margin-top: 1rem;"></div>
 </div>
 
-<div class="pagination">
+<div class="pagination" style="clear:both;">
   
   <a class="pagination-item older" href="/tech/2014/10/16/how-angularjs-apply-works/">在Angularjs里正确$apply的方法</a>
   
@@ -347,6 +350,7 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
     <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
+    <script src="https://larsjung.de/jquery-qrcode/latest/jquery-qrcode-0.16.0.js"></script>
     <script>
       /* globals $,document*/
       (function(document) {
@@ -383,8 +387,22 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
             });
         }());
       })(document);
+
+    $(function() {
+        $("#home-qr-code").qrcode({
+            render: "image",
+            background: "#fff",
+            size: 100,
+            mode: 0,
+            radius:0.5,
+            fontname: 'Ubuntu',
+            fontcolor: '#000',
+            text: "http://hellohtml5.com"
+        });
+		
+    });
     </script>
-	<script type="text/javascript"
-			src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript"
+            src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   </body>
 </html>
