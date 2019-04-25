@@ -9,9 +9,10 @@ layout: default
   <div class="tags">
     <a href="{{ site.github.repo }}/blob/master/{{ page.path }}" class="pull-right">文章源码</a> {% for tag in page.tags %}<a href="/tag/#{{ tag }}">#{{ tag }}</a> {% endfor %}
   </div>
+  <div class="pull-right" id="page-qr-code" style="margin-top: 1rem;"></div>
 </div>
 
-<div class="pagination">
+<div class="pagination" style="clear:both;">
   {% if page.previous %}
   <a class="pagination-item older" href="{{ page.previous.url }}">{{ page.previous.title }}</a>
   {% else %}
