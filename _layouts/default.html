@@ -76,7 +76,7 @@
             fontcolor: '#000',
             text: "{{ site.url }}"
         });
-		{% if page.url? %}
+		{% if page.url != "/" %}
         $("#page-qr-code").qrcode({
             render: "image",
             background: "#fff",
