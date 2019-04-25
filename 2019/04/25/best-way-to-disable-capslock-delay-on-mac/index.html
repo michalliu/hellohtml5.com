@@ -132,19 +132,21 @@
         <div class="post">
   <h1 class="post-title">Best way to disable capslock delay on mac</h1>
   <span class="post-date">25 Apr 2019</span>
-  <p>If you google “capslock delay mac”, you will see a lot of people is sufferred by this <strong>Feature</strong>. and it turns out there is no builtin method to turn the feature off.</p>
+  <p>If you google “capslock delay mac”, you will see a lot of people is suffering by this <strong>Feature</strong>. And there is no builtin method to turn it off.</p>
 
-<p>Here is my way i’d like to share. May be this is the simplest way you can ever found on the internet and it is totally free! The solution supports all mac versions in theoretical and my OS is Sierra 10.12.6.</p>
+<p>Here is my method I’d like to share. May be this is the simplest one you can ever found on the internet and it is totally free! The solution supports all mac versions in theoretical. In my case, I have Sierra (10.12.6).</p>
 
 <h2 id="the-reciepe">The Reciepe</h2>
 
-<p>Step 1: Download and install the following software we needs.</p>
+<p>Step 1: Download and install the following software we need.</p>
+
 <ul>
   <li><a href="https://pqrs.org/osx/karabiner/">Karabiner</a></li>
   <li><a href="https://www.hammerspoon.org/">Hammerspoon</a></li>
 </ul>
 
 <p>Step 2: Use Karabiner maps CapsLock key to F19.</p>
+
 <div class="image-wrapper" style="width:100%;"><img src="/2019/04/25/best-way-to-disable-capslock-delay-on-mac/karabiner_map.png" /></div>
 
 <p>Step 3: Edit init.lua under the path <code>~/.hammerspoon</code>, paste the code below.</p>
@@ -156,13 +158,13 @@
 	<span class="n">hs</span><span class="p">.</span><span class="n">hid</span><span class="p">.</span><span class="n">capslock</span><span class="p">.</span><span class="n">toggle</span><span class="p">()</span>
 <span class="kr">end</span>
 
-<span class="n">f19</span> <span class="o">=</span> <span class="n">hs</span><span class="p">.</span><span class="n">hotkey</span><span class="p">.</span><span class="n">bind</span><span class="p">({},</span> <span class="s1">&#39;F19&#39;</span><span class="p">,</span> <span class="n">pressedF19</span><span class="p">,</span> <span class="n">releasedF19</span><span class="p">)</span></code></pre></figure>
+<span class="n">hs</span><span class="p">.</span><span class="n">hotkey</span><span class="p">.</span><span class="n">bind</span><span class="p">({},</span> <span class="s1">&#39;F19&#39;</span><span class="p">,</span> <span class="n">pressedF19</span><span class="p">,</span> <span class="n">releasedF19</span><span class="p">)</span></code></pre></figure>
 
-<p>Reload the hammerspoon config for changes to take effect.</p>
+<p>Reload hammerspoon config for changes to take effect.</p>
+
 <div class="image-wrapper" style="width:20%;"><img src="/2019/04/25/best-way-to-disable-capslock-delay-on-mac/hammerspoon_reload.png" /></div>
 
 <p>That’s all and we are done.</p>
-
 
   <div class="tags">
     <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2019-04-25/2019-04-25-best-way-to-disable-capslock-delay-on-mac.md" class="pull-right">文章源码</a> <a href="/tag/#Misc">#Misc</a> 
