@@ -93,6 +93,10 @@
       
     
       
+        
+      
+    
+      
     
       
     
@@ -106,7 +110,7 @@
 
   <div class="sidebar-item">
     <p>
-      &copy; 2018. All rights reserved.
+      &copy; 2019. All rights reserved.
     </p>
   </div>
 </div>
@@ -129,229 +133,194 @@
   
   <div class="post">
     <h1 class="post-title">
-      <a href="/tech/2014/10/16/how-angularjs-apply-works/">
-        在Angularjs里正确$apply的方法
+      <a href="/tech/2018/11/15/DCT-explained/">
+        图片相似度计算，深入理解DCT变换以及感知哈希
       </a>
     </h1>
 
-    <span class="post-date">16 Oct 2014</span>
+    <span class="post-date">15 Nov 2018</span>
 
-    <h1 id="数据视图绑定原理">数据视图绑定原理</h1>
-<p>我们都知道Angularjs的数据-视图绑定功能，如下面的这个视图</p>
+    <h2 id="缘起">缘起</h2>
+<p>Android上硬件编解码一直是个老大难问题，就解码来说，硬解码本身并不困难，只要按照MediaCodec的流程开发即可。但由于系统碎片化，硬件规格不一致，硬件解码会到黑屏，花屏，绿屏之类的显示问题。为了不招致用户投诉，我们在做视频解码的时候不太敢开启硬件加速，一般会采用保守策略，即以软解为主，优先保证画面正常，但牺牲了性能。</p>
 
-<figure class="highlight"><pre><code class="language-html" data-lang="html"><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">ng-controller</span><span class="o">=</span><span class="s">&quot;Ctrl&quot;</span><span class="p">&gt;</span>
-  {{message}}
-<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span></code></pre></figure>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="kd">function</span> <span class="nx">Ctrl</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">$scope</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">;</span>
-<span class="p">}</span></code></pre></figure>
-
-<p>如果我们想在隔段时间后更新message，那么我们向controller添加如下代码</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="kd">function</span> <span class="nx">Ctrl</span><span class="p">(</span><span class="nx">$scope</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">$scope</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">;</span>
-  <span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">(){</span>
-       <span class="nx">$scope</span><span class="p">.</span><span class="nx">message</span> <span class="o">=</span> <span class="s2">&quot;update hello world&quot;</span><span class="p">;</span>
-  <span class="p">},</span> <span class="mi">2000</span><span class="p">)</span>
-<span class="p">}</span></code></pre></figure>
-
-<p>我们期待两秒后message会更新，但实际情况并非如此。这与Angularjs数据绑定的实现机制有关系。其实要实现数据绑定，也就是得到数据改变的通知，最容易想到的有两种思路。</p>
-
-<h2 id="原生api">原生API</h2>
-<p>即Object.watch(Mozilla)，Object.observe。 这个方法适用于最新的js解释器，在V8下可以写如下代码，观察对象的属性的变化。优点是性能最好，所有对象都能够实现监控，缺点是兼容性问题。</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="nx">a</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="o">:</span> <span class="mi">1</span><span class="p">};</span>
-<span class="nb">Object</span><span class="p">.</span><span class="nx">observe</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">infos</span><span class="p">){</span>
-	<span class="kd">var</span> <span class="nx">info</span><span class="o">=</span><span class="nx">infos</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-	<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">info</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot; changed&quot;</span><span class="p">)</span>
-<span class="p">});</span>
-<span class="nx">a</span><span class="p">.</span><span class="nx">x</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span>
-
-<span class="c1">//输出</span>
-<span class="s2">&quot;x changed&quot;</span></code></pre></figure>
-
-<h2 id="在回调函数中监控">在回调函数中监控</h2>
-
-<p>这个很好理解，我们要求调用者写代码时</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="nx">a</span><span class="p">.</span><span class="nx">x</span><span class="o">=</span><span class="mi">2</span><span class="p">;</span></code></pre></figure>
-
-<p>要写成</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="nx">a</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span></code></pre></figure>
-
-<p>那么 a 就是这么个对象</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">set</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">){</span> 
-         <span class="k">this</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
-         <span class="p">...</span>
-         <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">key</span> <span class="o">+</span> <span class="s2">&quot; changed&quot;</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">};</span></code></pre></figure>
-
-<p>我们在a的set方法中埋一个钩子，就可以监控到a的属性改变，这个方法的优点是容易实现，也很容易理解。缺点也显而易见。</p>
-
+<p>一般解决这个问题的方案是使用黑(白)机型名单下发配置(如：腾讯视频)，或者暴露开关让用户手动去控制是否走硬件解码(如：bilibili)。
+使用机型黑(白)名单有一定的作用，但其问题也显而易见：</p>
 <ul>
-  <li>它依赖于约定。如果有人写了 a.y=”5”; 它是监控不到这个变化的</li>
-  <li>不是所有的对象都支持绑定，只有一些特殊内置了set方法的对象，才能支持绑定</li>
+  <li>需要浪费大量的人力，精力进行机型测试，去维护，发布名单</li>
+  <li>覆盖度偏低，一般只覆盖TOP机型</li>
+  <li>缺乏时效性，例如新机型上市不能及时跟进</li>
+  <li>不一定准确，因为硬解是否成功，跟视频源也有很大关系，同一个机型可能解这个视频不成功，另外一个视频又是成功的。按照机型”一刀切”的前提是要保证视频规格一致，这样才最健壮。</li>
 </ul>
 
-<p>采用这种实现方式的有 <a href="http://emberjs.org">EmberJS</a> 和 <a href="http://knockoutjs.org/">KnockoutJS</a>。那就不难理解以下两条规则了。</p>
+<p>通过开关让用户切换体验太差，尤其是“抖音”之类的短视频App，总不能每个界面加个开关让用户去切换解码器这么深奥的东西吧，从用户角度讲，我为什么要关心这个什么解码器怎么设置，只要视频能正常看就行。</p>
 
+<p>仔细思考一下，我们其实可以实现自动化的检测，即模拟人工检测流程，把样本视频各软硬解一遍，然后对比他们的解码结果(图片)就能够知道硬解码是否能跑通。解码的流程轻车熟路，那么这里的关键问题就是我们如何进行图片对比？如何量化图片的差异度？</p>
+
+<h2 id="图片检索技术">图片检索技术</h2>
+<p>图片对比其实跟”以图搜图”本质上是同一种技术，通常有几种做法MSE，均值哈希，色彩直方图以及OpenCV里面一些提取图像特征的高级算法，如Sift,Surf等。基于移动端的运行效率，安装包大小，以及需求本身考虑，我们放弃引入OpenCV。MSE 属于逐像素对比，对像素值要求过于严格，太简单粗暴，色彩直方图不太好量化差异度。基于以上考虑，我们选择图像哈希算法，它可以输出汉明距离，方便量化软硬解结果的差异度。</p>
+
+<p>哈希算法有三种，平均哈希，感知哈希和差异度哈希，基于准确度考虑，我们选择实现较复杂一些的感知哈希算法。另基于性能考虑，我们在Android平台上使用C++实现算法，通过JNI接口给Java调用。Java层输入Android的Bitmap对象，输出为图片指纹，再通过对比指纹的汉明距离，我们即可判断出来解码是否正常。</p>
+
+<p>Java层接口签名如下：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="kd">public</span> <span class="kd">native</span> <span class="kt">long</span> <span class="nf">getHash</span><span class="o">(</span><span class="n">Bitmap</span> <span class="n">bitmap</span><span class="o">,</span> <span class="kt">int</span> <span class="n">algorithm</span><span class="o">);</span>
+<span class="kd">public</span> <span class="kd">native</span> <span class="kt">long</span> <span class="nf">getHammingDistance</span><span class="o">(</span><span class="kt">long</span> <span class="n">hash1</span><span class="o">,</span> <span class="kt">long</span> <span class="n">hash2</span><span class="o">);</span></code></pre></figure>
+
+<p>下面分析一下感知哈希实现的方法和背后的原理，使之知其然，知其所以然。</p>
+
+<h2 id="图片的构成">图片的构成</h2>
+<div class="image-wrapper" style=""><img src="/tech/2018/11/15/DCT-explained/bird_color.png" /><p class="image-caption">[&nbsp;<span>图一&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style=""><img src="/tech/2018/11/15/DCT-explained/bird_gray_small.png" /><p class="image-caption">[&nbsp;<span>图二&nbsp;</span>]</p></div>
+
+<p>我们知道图片由RGB三原色构成这称之为加色法，我们可以认为图片有三个维度（暂不考虑Alpha）。分析上面两幅图，图一为原图，可以发现图片里蕴含的大部分信息都是低频的，比如天空，绿叶，树枝等，他们很少变化。高频信息是小鸟的眼睛，嘴巴等细节。图二是把图一经过缩放且只保留亮度信息，可以看到这有效的移除了图片的细节，即高频信息，展示了图片的低频部分。图片的低频部分决定了图片的大体结构，高频部分则完善了图片的细节。我们在对比图片是否相似的时候，其实更关注的是中低频部分的差异度。</p>
+
+<p>在实践中，我们可以把图片从RGB转换为YCbCr格式，只提取Y的部分参与计算，实现降维，以减少运算量。再把图片缩放到32*32大小，丢弃掉大部分高频信息。由于进行了降维和缩放，后续步骤我们的运算量已大大减少。
+把图片从空域转换到频域，我们需要使用DCT（二维离散余弦变换）。DCT也是JPEG以及H264压缩算法的核心部分，感兴趣的可以继续深入了解视频压缩算法的相关研究。</p>
+
+<h2 id="感知哈希与dct离散余弦变换">感知哈希与DCT（离散余弦变换）</h2>
+<p>为了让大家深入了解背后的原理，这里打算展开介绍一下DCT，以及它为什么能检测出来图片的相似程度。本文恐怕是网络上能找到讲解DCT最详细的一篇文章了，如果你对背后的原理不感兴趣，也可以直接跳过。</p>
+<div class="image-wrapper" style=""><img src="/tech/2018/11/15/DCT-explained/dct.png" /><p class="image-caption">[&nbsp;<span>从空域到频域&nbsp;</span>]</p></div>
+
+<p>DCT由如下的公式定义，N和M为矩阵的行数和列数
+<script type="math/tex">% <![CDATA[
+\begin{equation}
+F(u, v) = \left (\frac{2}{N} \right )^{\frac{1}{2}} \left (\frac{2}{M} \right )^{\frac{1}{2}} C(u)C(v) \sum_{i=0}^{N-1}\sum_{j=0}^{M-1} f(i,j)cos\left [\frac{\left(2i+1\right)u\pi}{2N} \right ]cos\left [\frac{\left(2j+1\right)v\pi}{2N} \right ]
+\end{equation}\\
+C(\varepsilon) =
+\begin{cases}
+\frac{1}{\sqrt{2}}& \text{for}\ \varepsilon = 0\\
+1& \varepsilon>0
+\end{cases}\\ %]]></script>
+其中：</p>
 <ul>
-  <li>在Emberjs里，所有observable的对象必须用Ember.Object.create这个工厂方法创建</li>
-  <li>在Knockout里，observable对象须用 ko.observable 装饰</li>
+  <li>u,v = 离散频率变量(0,1,2…7)</li>
+  <li>f(i,j) = 图像在i行j列的像素值</li>
+  <li>F(u,v) = DCT结果</li>
 </ul>
 
-<p>另外一个需要关注的问题是Model的触发视图的更新时机，在Knockout官网上里有如下例子：</p>
+<p>我们先研究一个最简单的场景，假设图片像素值如下：
+<script type="math/tex">% <![CDATA[
+\begin{bmatrix}
+1&3\\2&0
+\end{bmatrix} %]]></script></p>
 
-<figure class="highlight"><pre><code class="language-html" data-lang="html"><span></span><span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>First name: <span class="p">&lt;</span><span class="nt">strong</span> <span class="na">data-bind</span><span class="o">=</span><span class="s">&quot;text: firstName&quot;</span><span class="p">&gt;</span>todo<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Last name: <span class="p">&lt;</span><span class="nt">strong</span> <span class="na">data-bind</span><span class="o">=</span><span class="s">&quot;text: lastName&quot;</span><span class="p">&gt;</span>todo<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Fullname: <span class="p">&lt;</span><span class="nt">strong</span> <span class="na">data-bind</span><span class="o">=</span><span class="s">&quot;text: fullName&quot;</span><span class="p">&gt;</span>todo<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">button</span> <span class="na">data-bind</span><span class="o">=</span><span class="s">&quot;click: capitalizeLastName&quot;</span><span class="p">&gt;</span>test<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span></code></pre></figure>
+<p>当N和M都为2时，上述公式可简化为：</p>
 
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="c1">// This is a simple *viewmodel* - JavaScript that defines the data and behavior of your UI</span>
-<span class="kd">function</span> <span class="nx">AppViewModel</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span> <span class="o">=</span> <span class="nx">ko</span><span class="p">.</span><span class="nx">observable</span><span class="p">(</span><span class="s2">&quot;Bert&quot;</span><span class="p">);</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span> <span class="o">=</span> <span class="nx">ko</span><span class="p">.</span><span class="nx">observable</span><span class="p">(</span><span class="s2">&quot;Bertington&quot;</span><span class="p">);</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">fullName</span><span class="o">=</span><span class="nx">ko</span><span class="p">.</span><span class="nx">computed</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span><span class="p">();</span>
-    <span class="p">},</span> <span class="k">this</span><span class="p">);</span>
-    <span class="k">this</span><span class="p">.</span><span class="nx">capitalizeLastName</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">currentVal</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span><span class="p">();</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span><span class="p">(</span><span class="s2">&quot;bang&quot;</span><span class="p">);</span>
-        <span class="kr">debugger</span><span class="p">;</span>
-        <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span><span class="p">(</span><span class="nx">currentVal</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">());</span>
-    <span class="p">};</span>
-<span class="p">}</span>
+<script type="math/tex; mode=display">\begin{equation}
+F(u,v) = C(u)C(v) \sum_{i=0}^{1}\sum_{j=0}^{1} f(i,j)cos\left [\frac{\left(2i+1\right)u\pi}{4} \right] cos\left [\frac{\left(2j+1\right)v\pi}{4} \right]
 
-<span class="c1">// Activates knockout.js</span>
-<span class="nx">ko</span><span class="p">.</span><span class="nx">applyBindings</span><span class="p">(</span><span class="k">new</span> <span class="nx">AppViewModel</span><span class="p">());</span></code></pre></figure>
+\end{equation}</script>
 
-<p>当我们点击test按钮时，capitalizeLastName 这个函数会就会一行一行的执行，注意我们的debugger语句，当 this.firstName(“bang”); 执行完毕后我们中断了程序。这个时候观察视图，发现视图中的firstName已经变成bang了。我们继续程序执行this.lastName(currentVal.toUpperCase()); 这句执行完毕时，lastName才被全部大写。这似乎没有什么神奇的地方。我们注意到使用这种方式。</p>
+<p>下面我们来计算二维DCT</p>
 
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align}
+F(0,0) &= \frac{1}{2}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)\\
+&=\frac{1}{2}\left [1+3+2+0\right]\\
+&=3\\
+F(0,1) &= \frac{1}{\sqrt{2}}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*cos(0)*cos\left(\frac{\left(2j+1\right)\pi}{4}\right)\\
+&= \frac{1}{\sqrt{2}}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*1*cos\left(\frac{\left(2j+1\right)\pi}{4}\right)\\
+&= \frac{1}{\sqrt{2}}\left[1*cos(\frac{\pi}{4})+2*cos(\frac{\pi}{4})+3*cos(\frac{3\pi}{4})+0\right]\\
+&=0\\
+F(1,0) &= \frac{1}{\sqrt{2}}\sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*cos\left(\frac{\left(2i+1\right)\pi}{4}\right)*cos(0)\\
+&= \frac{1}{\sqrt{2}}\left[1*cos(\frac{\pi}{4})+2*cos(\frac{3\pi}{4})+3*cos(\frac{\pi}{4})+0\right]\\
+&=1\\
+F(1,1) &= \sum_{i=0}^{1}\sum_{j=0}^1f(i,j)*cos\left(\frac{\left(2i+1\right)\pi}{4}\right)*cos\left(\frac{\left(2j+1\right)\pi}{4}\right)\\
+&= 1*cos(\frac{\pi}{4})*cos(\frac{\pi}{4})+2*cos(\frac{3\pi}{4})*cos(\frac{\pi}{4})+3*cos(\frac{\pi}{4})*cos(\frac{3\pi}{4})+0\\
+&=-2\\
+\end{align} %]]></script>
+
+<p>即，结果是：
+<script type="math/tex">% <![CDATA[
+\begin{bmatrix}
+3&0\\1&-2
+\end{bmatrix} %]]></script></p>
+
+<p>用Python的相关模块可以交叉验证我们的计算结果：</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">scipy.fftpack</span> <span class="kn">import</span> <span class="n">dct</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">d</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">dct</span><span class="p">(</span><span class="n">dct</span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">norm</span><span class="o">=</span><span class="s2">&quot;ortho&quot;</span><span class="p">),</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">norm</span><span class="o">=</span><span class="s2">&quot;ortho&quot;</span><span class="p">)</span>
+<span class="n">array</span><span class="p">([[</span> <span class="mf">3.</span><span class="p">,</span>  <span class="mf">0.</span><span class="p">],</span>
+       <span class="p">[</span> <span class="mf">1.</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.</span><span class="p">]])</span></code></pre></figure>
+
+<p>在实践上，上述方式的计算效率不高，更加简便的计算方式是使用DCT矩阵：
+<!--https://www.zybuluo.com/knight/note/96093--></p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+T_{i,j}=\left\{
+\begin{array}{lcr}
+\frac{1}{\sqrt{N}}       & {if\ i=0}\\
+\sqrt{\frac{2}{N}}cos\left[\frac{(2j+1)i\pi}{2N}\right]   & {if\ i>0}\\
+\end{array} \right. %]]></script>
+
+<p>若N取2，得到DCT矩阵
+<!--https://www.cnblogs.com/houkai/p/3399646.html-->
+<script type="math/tex">% <![CDATA[
+\begin{vmatrix}
+\frac{1}{\sqrt{2}} & \frac{1}{\sqrt{2}} \\
+cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
+\end{vmatrix} %]]></script></p>
+
+<p>若N取8，得到的矩阵是这样的</p>
+<div class="image-wrapper" style=""><img src="/tech/2018/11/15/DCT-explained/dct_matrix8.png" /><p class="image-caption">[&nbsp;<span>8*8 DCT矩阵&nbsp;</span>]</p></div>
+
+<p>其中i=0时，即第0行，我们称为DC分量或直流分量，i=1-7 我们称为AC分量或交流分量，用图表形式表示如下</p>
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_1.png" /><p class="image-caption">[&nbsp;<span>i=1&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_2.png" /><p class="image-caption">[&nbsp;<span>i=2&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_3.png" /><p class="image-caption">[&nbsp;<span>i=3&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_4.png" /><p class="image-caption">[&nbsp;<span>i=4&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_5.png" /><p class="image-caption">[&nbsp;<span>i=5&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_6.png" /><p class="image-caption">[&nbsp;<span>i=6&nbsp;</span>]</p></div>
+
+<div class="image-wrapper" style="width:45%;"><img src="/tech/2018/11/15/DCT-explained/dct_row_7.png" /><p class="image-caption">[&nbsp;<span>i=7&nbsp;</span>]</p></div>
+
+<p>有这样一个矩阵的话，我们再进行DCT变换就非常简单了：</p>
+
+<script type="math/tex; mode=display">D=TMT^T</script>
+
+<p>其中：</p>
 <ul>
-  <li>视图更新次数频繁，每次Model的改变都会触发视图的更新。<strong>它更关注对象什么时候发生了变化</strong>。</li>
-  <li><strong>数据一致性有保证</strong>，例如我在上面对firstName赋值，下面的代码要用到这个值的时候，已经知道firstName的最新的值是什么，调用 this.firstName() 即可。</li>
+  <li>T = DCT矩阵</li>
+  <li>M = 图像数据</li>
+  <li>D = DCT结果</li>
 </ul>
 
-<p>只有理解了这两点，才能继续往下看，理解Angular的与众不同。</p>
+<p>这是对一张8*8图片应用DCT变换得到的矩阵结果：</p>
+<div class="image-wrapper" style="width:60%;"><img src="/tech/2018/11/15/DCT-explained/dct_output8.png" /></div>
 
-<h2 id="angular的方式">Angular的方式</h2>
+<p>这个矩阵最左上角是低频信息，右下角是高频信息。有个神奇的东西叫基准样式。</p>
+<div class="image-wrapper" style="width:60%;"><img src="/tech/2018/11/15/DCT-explained/dct_basis_pattern8.png" /></div>
 
-<p>Angular看这个问题的角度很新颖，Angular的绑定不用制造特殊对象，任何对象它都支持绑定，它的原理大致是这样的。</p>
+<p>信不信由你，任意一张8*8的图，都可以由标准图中的的小图以一定比例叠加而合成，而每个小图的权重，由DCT变换得到的矩阵决定，是不是很有意思。DCT变换后左上角一般是比较大的数字，而右下角一般是比较小的数字，这暗含了图片中低频信息占的比重较多，因此我们在做图片或者视频编码压缩的时候，正是通过量化舍弃右下角的高频信息，来实现信息的压缩。</p>
 
-<p>我们发现网页上界面刷新操作都对应一个具体的事件。例如最常用的，点击造成界面刷新，定时器到时触发刷新，AJAX请求返回触发刷新等。因此，Angular封装了一些常用的操作函数ng-click, $timeout,$http等。异步的操作采用Promise封装。当这个Promise处于complete状态，我们就触发一次$digest操作(同步的方法视为马上complete)。$digest的目的就在于检查被监控的对象是否发生了变化。</p>
+<h2 id="图片差异度">图片差异度</h2>
+<p>我们在对比图片差异的时候，正是通过对比频域信息来实现的。在我们的实现中，首先把软硬件解码后的图片转成YCbCr格式，只提取其中的Y，实现降维，再把图片缩放到32*32大小，进一步减少运算量，同时舍弃了一部分高频信息。再应用32*32的DCT把图片转换到频域，从频域矩阵中提取8*8中低频区域的系数，计算算数平均值。</p>
 
-<p>这里我们看到Angularjs跟上面方式的区别，<strong>Angular不关注对象什么时候发生了变化，关注的是事件引起了那些变化</strong>。在该事件结束后，统一刷新界面。这样做的好处是不会产生过多的视图渲染，假设我们要做一个聊天消息列表，我们可以写如下代码，而不用担心聊天界面被渲染两次，毕竟每次渲染需要大量的CPU计算，给用户的感觉会“卡”。</p>
+<script type="math/tex; mode=display">D = \frac{\sum_{i=2}^{9}\sum_{j=2}^{9}f(i,j)}{64}</script>
 
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="c1">// 以下代码在某个$http回调中</span>
-<span class="nx">scope</span><span class="p">.</span><span class="nx">msgList</span> <span class="o">=</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">msgList</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nx">newMsgList</span><span class="p">));</span> <span class="c1">//第一次赋值</span>
-<span class="kd">var</span> <span class="nx">msgListLength</span> <span class="o">=</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">msgList</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
-<span class="nx">$scope</span><span class="p">.</span><span class="nx">msgList</span> <span class="o">=</span> <span class="nx">$scope</span><span class="p">.</span><span class="nx">msgList</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">msgListLength</span> <span class="o">-</span> <span class="mi">200</span><span class="p">,</span> <span class="nx">msgListLength</span><span class="p">);</span> <span class="c1">// 第二次赋值，只保留200条最新消息</span>
+<p>矩阵中的每个值再与D比较，大于D计1，小于D计0，按位存储，我们即可得到一个图片指纹。通过计算两个图片指纹的差异，我们就可以得到可以量化图片差异度的数字。
+当差异为0时，我们认为两张图片完全一样，差异越大，表明图片越不相似。对于解码出现绿屏，花屏的情况，我们可以有效的检测出来。</p>
 
-<span class="c1">// 对msgList的操作不会引起View的重绘</span></code></pre></figure>
+<p>绿屏案例，相似度24:</p>
+<div class="image-wrapper" style="width:40%;"><img src="/tech/2018/11/15/DCT-explained/case1.png" /><p class="image-caption">[&nbsp;<span>hash:89969d7f616c8199&nbsp;</span>]</p></div>
 
-<p>我们虽然对msgList进行了两次赋值，但是真正的渲染只会在$http结束后渲染一次。
-下面我们结合代码更加详细的分析一下这个过程。
-<a class="jsbin-embed" href="http://jsbin.com/sorise/1/embed?js,output">JS Bin</a>
-在视图中，我们声明了两个watcher，a和b。我们这时点击test按钮，我们可以想象代码中最后会执行$scope.$digest()方法。为了证明它真的是这样工作的，我们打开调试器，当代码中断在debugger语句时，$scope.a已经发生了变化，但是视图并未立即更新。而是在xxClick执行完毕后更新（实际上是在$digest后更新，而$digest是由本文的主角$apply触发）。</p>
+<div class="image-wrapper" style="width:40%;"><img src="/tech/2018/11/15/DCT-explained/case2.png" /><p class="image-caption">[&nbsp;<span>hash:17169efefecc8040&nbsp;</span>]</p></div>
 
-<p>然后请大家想两个问题：</p>
+<p>花屏案例，相似度20:</p>
+<div class="image-wrapper" style="width:40%;"><img src="/tech/2018/11/15/DCT-explained/case3.png" /><p class="image-caption">[&nbsp;<span>hash:9ab6bf6441491b99&nbsp;</span>]</p></div>
 
-<ol>
-  <li>
-    <p>我们知道具体什么时候a发生了变化吗？<a href="javascript:void(0);" data-display=".answser1">显示答案</a>
- <span class="answser1">我们不知道精确的时间，但是我们知道是在xxClick后我们通过检查与旧值的对比，发现a发生了变化。在knockout中我们可以知道一个对象改变的精确时间，在Angular里，我们不知道。除非你刻意写代码，在每个改变a的地方打个时间戳。</span></p>
-  </li>
-  <li>
-    <p>我们是怎么知道我们监控了那些对象？<a href="javascript:void(0);" data-display=".answser2">显示答案</a>
- <span class="answser2">有两种办法:</span>
- <span class="answser2">1. 我们看到$scope下有a,b,c三个属性，那么我们是否需要监控a,b,c三个值得变化呢，要解答这个问题要看View，在View中我们只引用了a和b，并没有涉及到c，所以只有a和b两个watcher。</span>
- <span class="answser2">2. 使用$scope.$watch(“c”, function () {}) 这样我们通过代码的方式手工增加了一个watcher。</span>
- <span class="answser2">注：实际上，我们监控的对象也可以是一个表达式，例如，但是它们本质上是一样的，只要a发生了变化，就将这个表达式重新计算，计算结果更新到视图上。</span></p>
-  </li>
-</ol>
+<div class="image-wrapper" style="width:40%;"><img src="/tech/2018/11/15/DCT-explained/case4.png" /><p class="image-caption">[&nbsp;<span>hash:9ea72d6019e61b1e&nbsp;</span>]</p></div>
 
-<p>我们看到Angularjs的实现方法严格意义上讲，应该归类于第二种，是基于函数的回调检查变化，但是它从宏观角度着眼，不纠结于单个属性的变化，而是关注事件触发后，我要关注的对象都发生了什么改变。</p>
-
-<p>但是，这样带来一个数据一致性的问题。当view中有多个watcher时，a的变化可能会引起b的变化，而watcher监听器的执行总会有个先后顺序，在单个$digets循环中，如果b的监听器先于a执行，那么a变化之后，那么b在本次$digest中就感知不到a的变化。更麻烦的时，a的变化有可能引起e的变化，e的变化又改变了b，那么怎么解决这个问题。</p>
-
-<p>Angular的解决方式是，在单次$digest结束后，如果watch的expression的值计算以后，发现发生了变化就标记本次$digest的结果为dirty，再执行一次$digest，如果结果还是dirty 那就再执行一次，直到dirty为false为止。这就是Angular中<strong>dirty-check（脏检查）</strong>的来历。Angular中对这个检查次数有个10的上限，如果$digest超过10次，会抛异常。我们可以看出来Angularjs里<strong>双向绑定</strong>并不神秘，而且只是一种概念，从Angular开发者的角度来看，根本不存在所谓的<strong>双向绑定</strong>，只是不同的事件在触发$digest而已。</p>
-
-<p>注：我们也可以把a也理解为一个expression，即(a)</p>
-
-<h1 id="angular里的数据视图绑定">Angular里的数据视图绑定</h1>
-<p>通过上文，我们了解了Angular中model到view的data binding的实现，现在回到开头的问题，在Angular中怎么正确的进行视图更新。通过上面的原理我们知道，其实只需要触发$digest就可以了，我么可以通过调用$scope.$digest();实现界面刷新。
-<a class="jsbin-embed" href="http://jsbin.com/lepoya/1/embed?js,output">JS Bin</a>
-但是直接$digest是有一定风险的，因为$digest是会抛异常（还记得那个10次限制吗）。所以我们一般直接调用$apply，我们看Angular里$apply的源码</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="nx">$apply</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">expr</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">try</span> <span class="p">{</span>
-          <span class="nx">beginPhase</span><span class="p">(</span><span class="s1">&#39;$apply&#39;</span><span class="p">);</span>
-          <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">$eval</span><span class="p">(</span><span class="nx">expr</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">$exceptionHandler</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">finally</span> <span class="p">{</span>
-          <span class="nx">clearPhase</span><span class="p">();</span>
-          <span class="k">try</span> <span class="p">{</span>
-            <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">$digest</span><span class="p">();</span>
-          <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nx">$exceptionHandler</span><span class="p">(</span><span class="nx">e</span><span class="p">);</span>
-            <span class="k">throw</span> <span class="nx">e</span><span class="p">;</span>
-          <span class="p">}</span>
-        <span class="p">}</span>
-      <span class="p">}</span></code></pre></figure>
-
-<p>我们看到$apply可以触发$digest，并且捕捉了异常，因此有下面代码达到同样的效果
-<a class="jsbin-embed" href="http://jsbin.com/sasudo/1/embed?js,output">JS Bin</a>
-注意我们使用$apply触发刷新，这样相对来说就比较安全了，它会处理$digest的异常。
-我们注意到，$apply还可以接受一个js expression，因此下面这种写法也是可以的
-<a class="jsbin-embed" href="http://jsbin.com/cicuv/1/embed?js,output">JS Bin</a>
-或者
-<a class="jsbin-embed" href="http://jsbin.com/zulumu/1/embed?js,output">JS Bin</a>
-它们的区别就是，<strong>在$apply里的expression异常会被Angularjs捕捉处理，不会导致整个Angular应用的崩溃</strong>，这一点儿对一个webapp来说是至关重要的。
-但是这样做有时候还会有问题，有时候我们会遇到这个错误 <strong>“$digest already in progress”</strong> 这是怎么回事呢。</p>
-
-<h1 id="处理digest错误">处理$digest错误</h1>
-<p>Angular里有许多内置的directive，这些directive会自动的执行$apply，比如$timeout，$http这些常用的模块
-<a class="jsbin-embed" href="http://jsbin.com/xoxoti/1/embed?js,output">JS Bin</a>
-在这些内置的directive里，我们不需要手动$apply，Angular会自动帮我们做。我们的上述代码，实际上相当于如下<strong>想象的</strong>代码(注意注释的代码)， 使用Promise很容易实现。</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="kd">function</span> <span class="nx">Ctrl</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span><span class="nx">$timeout</span><span class="p">){</span>
-    <span class="nx">$scope</span><span class="p">.</span><span class="nx">msg</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">;</span>
-    <span class="nx">$timeout</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-        <span class="nx">$scope</span><span class="p">.</span><span class="nx">msg</span> <span class="o">=</span> <span class="s2">&quot;world&quot;</span><span class="p">;</span>
-     <span class="p">},</span><span class="mi">1000</span><span class="p">)</span><span class="cm">/*.always(function () { $scope.$apply(); });*/</span>
-<span class="p">}</span></code></pre></figure>
-
-<p>在实际项目中，我们经常需要使用外部库jQuery等与Angular结合，以提高性能，或者方便的实现Angular中没有的功能。
-<a class="jsbin-embed" href="http://jsbin.com/piromo/1/embed?js,output">JS Bin</a>
-updateMsg是一个公共方法，有可能在Angular的directive里调用，也有可能在jquery的回调函数里调用，$http请求完成后会执行我们代码中的$apply()，之前也说过$http方法是会自动$apply的，所以等于是<strong>在$apply里又执行了$apply</strong>，发生状态错误。所以就会出现<strong>“$digest already in progress”</strong> 的错误，但在jquery的click回调里没有这个问题。 这种场景在Angular和jquery混用的时候是非常常见的。那么我们如何简单方便的解决这个问题呢，答案非常简单:</p>
-
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span></span><span class="kd">function</span> <span class="nx">Ctrl</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span><span class="nx">$timeout</span><span class="p">,</span> <span class="nx">$http</span><span class="p">){</span>
-    <span class="nx">$scope</span><span class="p">.</span><span class="nx">msg</span><span class="o">=</span><span class="s2">&quot;hello&quot;</span><span class="p">;</span>
-  
-    <span class="kd">function</span> <span class="nx">updateMsg</span> <span class="p">()</span> <span class="p">{</span>
-        <span class="nx">$scope</span><span class="p">.</span><span class="nx">msg</span><span class="o">=</span><span class="s2">&quot;world&quot;</span><span class="p">;</span>
-        <span class="nx">$scope</span><span class="p">.</span><span class="nx">$apply</span><span class="p">();</span>
-    <span class="p">}</span>
-    
-    <span class="kd">function</span> <span class="nx">updateMsgWrapper</span><span class="p">(){</span>
-      <span class="nx">$timeout</span><span class="p">(</span><span class="nx">updateMsg</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
-    <span class="p">}</span>
-  
-    <span class="nx">$http</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">).</span><span class="nx">success</span><span class="p">(</span><span class="nx">updateMsgWrapper</span><span class="p">);</span>
-    <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;#test&quot;</span><span class="p">).</span><span class="nx">click</span><span class="p">(</span><span class="nx">updateMsgWrapper</span><span class="p">);</span>
-<span class="p">}</span></code></pre></figure>
-
-<p>相信我啰嗦了这么多，大家都明白为什么这样做能解决问题了。这样做的好处是没有额外的代码，并且兼容angular和Non-Angular的情况。流行的还有一种方法，过于geek，不推荐使用，仅供参考:
-<a class="jsbin-embed" href="http://jsbin.com/sohuli/1/embed?js,output">JS Bin</a>
-$$phase保存$digest状态机的当前状态。</p>
-
-<script src="http://static.jsbin.com/js/embed.js"></script>
+<p>检测Demo截图:</p>
+<div class="image-wrapper" style="width:40%;"><img src="/tech/2018/11/15/DCT-explained/demo.png" /><p class="image-caption">[&nbsp;<span>Demo截图&nbsp;</span>]</p></div>
 
 
   </div>
@@ -360,7 +329,7 @@ $$phase保存$digest状态机的当前状态。</p>
 
 <div class="pagination">
   
-    <span class="pagination-item older">Older</span>
+    <a class="pagination-item older" href="/page3">Older</a>
   
   
     
