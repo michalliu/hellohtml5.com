@@ -162,13 +162,10 @@
 <p>Step 3: Edit init.lua under the path <code>~/.hammerspoon</code>, paste the code below.</p>
 
 <figure class="highlight"><pre><code class="language-lua" data-lang="lua"><span></span><span class="n">pressedF19</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
-<span class="kr">end</span>
-
-<span class="n">releasedF19</span> <span class="o">=</span> <span class="kr">function</span><span class="p">()</span>
 	<span class="n">hs</span><span class="p">.</span><span class="n">hid</span><span class="p">.</span><span class="n">capslock</span><span class="p">.</span><span class="n">toggle</span><span class="p">()</span>
 <span class="kr">end</span>
 
-<span class="n">hs</span><span class="p">.</span><span class="n">hotkey</span><span class="p">.</span><span class="n">bind</span><span class="p">({},</span> <span class="s1">&#39;F19&#39;</span><span class="p">,</span> <span class="n">pressedF19</span><span class="p">,</span> <span class="n">releasedF19</span><span class="p">)</span></code></pre></figure>
+<span class="n">hs</span><span class="p">.</span><span class="n">hotkey</span><span class="p">.</span><span class="n">bind</span><span class="p">({},</span> <span class="s1">&#39;F19&#39;</span><span class="p">,</span> <span class="n">pressedF19</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span></code></pre></figure>
 
 <p>Reload hammerspoon config for changes to take effect.</p>
 
