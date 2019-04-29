@@ -25,13 +25,10 @@ Step 3: Edit init.lua under the path `~/.hammerspoon`, paste the code below.
 
 {% highlight lua%}
 pressedF19 = function()
-end
-
-releasedF19 = function()
 	hs.hid.capslock.toggle()
 end
 
-hs.hotkey.bind({}, 'F19', pressedF19, releasedF19)
+hs.hotkey.bind({}, 'F19', pressedF19, nil)
 
 {% endhighlight%}
 
