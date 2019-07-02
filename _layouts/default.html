@@ -27,7 +27,6 @@
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
     <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
-    <script src="https://larsjung.de/jquery-qrcode/latest/jquery-qrcode-0.16.0.js"></script>
     <script>
       /* globals $,document*/
       (function(document) {
@@ -64,31 +63,6 @@
             });
         }());
       })(document);
-
-    $(function() {
-        $("#home-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "{{ site.url }}"
-        });
-		{% if page.url != "/" %}
-        $("#page-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "{{ site.url }}{{ page.url }}"
-        });
-		{% endif %}
-    });
     </script>
     <script type="text/javascript"
             src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
