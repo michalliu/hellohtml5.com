@@ -20,19 +20,28 @@ module Jekyll
         def initialize(tag_name, markup, tokens)
             super
             
+            #config
             @config = {}
+
             #set defaults
             override_config(@@DEFAULTS)
+            
+            #url which supports expression
+            @url_component = []
 
             params = markup.split
-            # first argument (required) is url of qrcode
-            @url = params.shift.strip
             if params.size > 0
                 config = {} # reset local config
                 params.each do |param|
                     param = param.gsub /\s+/, '' # remove whitespace
-                    key, value = param.split(':', 2) # split first occurrence of ':' only
-                    config[key.to_sym] = value
+                    if param[0] == '`' and param[-1] == '`' # variable
+                        @url_component.push param
+                    elsif param.include? ':' # options
+                        key, value = param.split(':', 2) # split first occurrence of ':' only
+                        config[key.to_sym] = value
+                    else # raw string
+                        @url_component.push param
+                    end
                 end
                 override_config(config)
             end
@@ -42,8 +51,29 @@ module Jekyll
             config.each{ |key, value| @config[key] = value }
         end
 
+        def get_value(context, expression)
+            if (expression[0] == '`' and expression[-1] == '`')
+                var = expression[1..-2]
+                lookup_path = var.split('.')
+                result = context
+                lookup_path.each do |variable|
+                    result = result[variable] if result
+                end
+                return result
+            end
+            return expression
+        end
+        
+        def get_url(context)
+            url = []
+            @url_component.each do |comp|
+                url.push get_value(context, comp)
+            end
+            return url.join
+        end
+
         def render(context)
-            qr = RQRCode::QRCode.new(@url)
+            qr = RQRCode::QRCode.new(get_url(context))
             case @config[:type]
             when "s"
                 data = qr.to_s(
@@ -78,7 +108,7 @@ module Jekyll
             when "svg"
                 "#{data}"
             when "img"
-                "<img src=\"#{data.to_data_url}\" alt=\"#{@url} fill:#{@config[:fill]} color:#{@config[:color]} size:#{@config[:size]} \"/>"
+                "<img src=\"#{data.to_data_url}\" alt=\"#{get_url(context)}\"/>"
             end
         end
         Liquid::Template.register_tag 'qrcode', self
