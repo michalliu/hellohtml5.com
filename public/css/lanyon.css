@@ -89,6 +89,20 @@ h1, h2, h3, h4, h5, h6 {
 
 
 /*
+ * QrCode on index page
+ *
+*/
+.default-page-qr {
+  margin-right:-6rem;
+  margin-top:-10px;
+}
+@media (max-width: 28em) {
+  .default-page-qr {
+    margin-right:0rem;
+  }
+}
+
+/*
  * Masthead
  *
  * Super small header above the content for site name and short description.
