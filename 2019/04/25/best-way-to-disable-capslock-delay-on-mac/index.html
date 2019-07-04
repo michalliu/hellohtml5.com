@@ -110,8 +110,6 @@
     <p>
       &copy; 2019. All rights reserved.
     </p>
-    <p id="home-qr-code" style="width:110px;height:110px;background:#fff;padding:5px 0px 0px 5px;">
-    </p>
   </div>
 </div>
 
@@ -166,7 +164,7 @@
   <div class="tags">
     <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2019-04-25/2019-04-25-best-way-to-disable-capslock-delay-on-mac.md" class="pull-right">文章源码</a> <a href="/tag/#Misc">#Misc</a> 
   </div>
-  <div class="pull-right" id="page-qr-code" style="margin-top: 1rem;"></div>
+  <div class="pull-right" style="margin-top: 1rem;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAACvUlEQVR4nM1UPUzbQBT2RcJJF6SGIU4qxe4QmBEDZCioU9Kh7MAQuyiJGQoCBmpHjc+R4iQDVBVLHNTYDLRz0yUsVLCQDqgzYYgdRHxZQG2HJkbCZUV63Xnb6dO9d9/PPZ/3sHzUw3p8ZxuJ5Zqe5QpdBwUA3H/n/cVZjqSLnGIBuBdw97SyZJlhbGNwHnt1svVG133M/95zqZnGgGJ4EEcDciAv5iudM8xC/Yc+zxpZJWmRIioH4KyXi6AIMxZX494Aer+/aExaBcP6esxC/Pvq1HGrmfHLwsxtFcCZ9Z7ZFDjeiZVEAuDuBwG/itkR1HZpiJ/XmbDMrjt/VBG3oP7+eJV6l4k2CB8SQf0SksHtoazy4qfegvSZsmrpT3p9yVYC0P2b01FyeWHxdOHbL0jf0FybOjLE/UjmtdgE8Nvj+paIFOWusa+KAE7CzybkdLxdS3XGGaj/WythVZS1HjFD0HwUj+Vmn+KmiapLUP6uX4oeThJHiJ1sQ/55pYsSNvO8pJdsSN+gUZxxLNLYSRpgvglSz/9wTL/NCCqY7yH3BdMF/iArRSD/aQWnuM0BI+yqVYg/EjAqjt+w0wHjFMovFe6Ii4vB/ko1+h2c7+Q+asRRJMVywfz58f6yRmeiN8s9yP+oPpscYSNhu20IEH/bkWaCUl3lTP4QzOd0j7ou9K2FKy0N+R9ayYlhy+PImP4E4tcdjkdrUWTMjern0P+kJbnrCANPdumoCeBjivYes8qPbFGuQPn3JgQ5P5SbmY0shvJLUj2zRpe7jR1VgvRlVTzPu/nU6obfAfVB1UOuTOjNtY5cBvcnaiXzjLk9+Vzjwf1JXLNbkHbXzllI3/uATQ85JUAHjxCk731dH9i+jYWz3G9IHzQI7+LPGZM0EgFo/tA3ovHrky225S/C+1O1UMmpU2xVgvx5XOd/olhI8TGoaPUAAAAASUVORK5CYII=" alt="http://localhost:4000/2019/04/25/best-way-to-disable-capslock-delay-on-mac/"/></div>
 </div>
 
 <div class="pagination" style="clear:both;">
@@ -198,7 +196,6 @@
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
     <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
-    <script src="https://larsjung.de/jquery-qrcode/latest/jquery-qrcode-0.16.0.js"></script>
     <script>
       /* globals $,document*/
       (function(document) {
@@ -235,31 +232,6 @@
             });
         }());
       })(document);
-
-    $(function() {
-        $("#home-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "http://hellohtml5.com"
-        });
-		
-        $("#page-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "http://hellohtml5.com/2019/04/25/best-way-to-disable-capslock-delay-on-mac/"
-        });
-		
-    });
     </script>
     <script type="text/javascript"
             src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>

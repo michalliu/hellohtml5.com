@@ -110,8 +110,6 @@
     <p>
       &copy; 2019. All rights reserved.
     </p>
-    <p id="home-qr-code" style="width:110px;height:110px;background:#fff;padding:5px 0px 0px 5px;">
-    </p>
   </div>
 </div>
 
@@ -353,7 +351,7 @@ $$phase保存$digest状态机的当前状态。</p>
   <div class="tags">
     <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2014-10-16/2014-10-16-how-angularjs-apply-works.md" class="pull-right">文章源码</a> <a href="/tag/#AngularJS">#AngularJS</a> 
   </div>
-  <div class="pull-right" id="page-qr-code" style="margin-top: 1rem;"></div>
+  <div class="pull-right" style="margin-top: 1rem;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAACY0lEQVR4nN1VO28aQRC+JeKONI5Cwx4FB4XtOklDRSSnMGnSB4oAkXgUsaU04SHd7hFxULmAgjtbxqTBvV04FKag8aXIDzAuuMOKWIoQOU14CG/SWhqXkaJsN/p25vvmsbMufve4hLvn/7M5kqgmEwmRJKLQfWKPKSrNq6XqLRjP0UJU/C5dUu6B+XjBHmuNI0Lv0yNRr2nXavfoVWisF1VZjGgzENeCbktk7kqm4IJwxOf09Ck+MLDCwfwWDE+j5fRBqCBDONfPtAEOnBEbWSD/uG9GmHBtjzodkN8vU76R/LUbdupg/U2P5My41rQSGVCfezUkKba3DAaqIM5qkwfPn93ogY8ahCPNeLzKvNsxSeUnyH/z5ZHn/bIuLs0gqH/t5MNVlu8OxBED/a+sidErPKH8sAnyk2bTgzbQzgtnDOoXap++kWSmoSAC4h1164SpyvqtOgL5DXZeLbI3fcZ6YH+ieGkF8DJk4BiYX72c9vXLfOgvg/3jVMlOIom2+ApHwfjSRfGs307LRhqcH6Et6/EQL45zOTA/NHTtCyr7EcamH4zfVvM8uH/ChIwD93+sS2R1MZsrEojH61XJXkipvUQezK+yFh+wqW9zcEBB/m7DOA4vEIkEBLB+Q6u9EI5lsx+dgv5ln55IXubsbr0Lvq8Z2w5rwYDzVYLrU219dlN1O7yvgvwcPXxLVXZK8yx+z/5yDxaYZ6cY9BcciqdiWWphuP9/9lffe+2kXhbxa3h+kZkL9wSvmIbjK7RzTp1DUtI2QX8tGNuaFqzJenIA76+ZqMxEuZU80v+F/+Lv2r8B3jwb8RZWG28AAAAASUVORK5CYII=" alt="http://localhost:4000/tech/2014/10/16/how-angularjs-apply-works/"/></div>
 </div>
 
 <div class="pagination" style="clear:both;">
@@ -385,7 +383,6 @@ $$phase保存$digest状态机的当前状态。</p>
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
     <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
-    <script src="https://larsjung.de/jquery-qrcode/latest/jquery-qrcode-0.16.0.js"></script>
     <script>
       /* globals $,document*/
       (function(document) {
@@ -422,31 +419,6 @@ $$phase保存$digest状态机的当前状态。</p>
             });
         }());
       })(document);
-
-    $(function() {
-        $("#home-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "http://hellohtml5.com"
-        });
-		
-        $("#page-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "http://hellohtml5.com/tech/2014/10/16/how-angularjs-apply-works/"
-        });
-		
-    });
     </script>
     <script type="text/javascript"
             src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>

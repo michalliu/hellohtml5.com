@@ -110,8 +110,6 @@
     <p>
       &copy; 2019. All rights reserved.
     </p>
-    <p id="home-qr-code" style="width:110px;height:110px;background:#fff;padding:5px 0px 0px 5px;">
-    </p>
   </div>
 </div>
 
@@ -318,7 +316,7 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
   <div class="tags">
     <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2018-11-15/2018-11-15-DCT-explained.md" class="pull-right">文章源码</a> <a href="/tag/#CV">#CV</a> 
   </div>
-  <div class="pull-right" id="page-qr-code" style="margin-top: 1rem;"></div>
+  <div class="pull-right" style="margin-top: 1rem;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAACGUlEQVR4nO2Uv2/TQBTHfZFsZ2JwBl862O5AmYGBMEClLk0G/oCKoXGrEGcgCBaoI+EzUmt3RB1wgtSYgXRulrRDB8oShpYZs9xFInWWIjE5sZSja8Xz3oHbnj56977vh745fv3lhOvvf/xPzBDxioZn1lEe5PKcR9IqkbBDQc7zs17l/p+CxUhGPdm1ay9uHWXqYVuPGjbO0ocSTbbCky9Eh/+f5uJ1uj6Uyq4Bcp2T1O53+kWewPp1QzpuauW2BdeffI2EZ+ZQijk8H4UvB9O7hlLFGOSXaMPvmax54A5BjtX5SxJO94J2CeQjZBrp88fxKolBrjrd72OT3V5kFJ5fgyjvlAs6bcL6YlFvipbQl224f4xahqB98hLVgPs7PIuwr1xs/IbrT9niUiUQI20Az0/oJq+DUWVZPq2CXJrUN9H2AyqEIciL2w+D+s+W9eot3N+oYHn3unTQaMDz15788M5I+LQ0COD8j3fsdL+W57YPcvHXVqLSlMaIgDxt7fd6HXFJHsL6pO5wbZPsOrZQhvfrEV+rfGBzFb6PyXsDlz+zotMU4PxvrLGg+G9muArymWjXgjq99H34vuQ2KYw7h3teBP/PkLPDHEt0XFifPNe4R+SWS+B8nkcLYT3qrenwfq4quBEns4NxmOUv5yc59Rwf0wz/UPVTYbe0snKU4R8owfqY72iwviv/QB7FZiBUb4Rf3+j4L4Ng4eKW2rOrAAAAAElFTkSuQmCC" alt="http://localhost:4000/tech/2018/11/15/DCT-explained/"/></div>
 </div>
 
 <div class="pagination" style="clear:both;">
@@ -350,7 +348,6 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
     <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
-    <script src="https://larsjung.de/jquery-qrcode/latest/jquery-qrcode-0.16.0.js"></script>
     <script>
       /* globals $,document*/
       (function(document) {
@@ -387,31 +384,6 @@ cos(\frac{\pi}{4}) & cos(\frac{3\pi}{4})
             });
         }());
       })(document);
-
-    $(function() {
-        $("#home-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "http://hellohtml5.com"
-        });
-		
-        $("#page-qr-code").qrcode({
-            render: "image",
-            background: "#fff",
-            size: 100,
-            mode: 0,
-            radius:0.5,
-            fontname: 'Ubuntu',
-            fontcolor: '#000',
-            text: "http://hellohtml5.com/tech/2018/11/15/DCT-explained/"
-        });
-		
-    });
     </script>
     <script type="text/javascript"
             src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
