@@ -96,7 +96,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-right:-6rem;
   margin-top:-10px;
 }
-@media (max-width: 28em) {
+@media (max-width: 32em) {
   .default-page-qr {
     margin-right:0rem;
   }
