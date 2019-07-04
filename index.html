@@ -14,7 +14,7 @@ title: Home
 
     <span class="post-date">{{ post.date | date_to_string }}</span>
 
-    <div class="pull-right" style="margin-right:-6rem;margin-top:-10px;">{% qrcode `site.url` fill:white color:black size:120 %}</div>
+    <div class="pull-right default-page-qr">{% qrcode `site.url` fill:white color:black size:120 %}</div>
     {{ post.content }}
   </div>
   {% endfor %}
