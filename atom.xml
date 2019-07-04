@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
  <title>朝闻夕拾</title>
- <link href="http://localhost:4000/atom.xml" rel="self"/>
- <link href="http://localhost:4000/"/>
- <updated>2019-07-04T21:35:29+08:00</updated>
- <id>http://localhost:4000</id>
+ <link href="http://hellohtml5.com/atom.xml" rel="self"/>
+ <link href="http://hellohtml5.com/"/>
+ <updated>2019-07-05T03:36:02+08:00</updated>
+ <id>http://hellohtml5.com</id>
  <author>
    <name>Mark Otto</name>
    <email>markdotto@gmail.com</email>
@@ -14,9 +14,9 @@
  
  <entry>
    <title>Best way to disable capslock delay on mac</title>
-   <link href="http://localhost:4000/2019/04/25/best-way-to-disable-capslock-delay-on-mac/"/>
+   <link href="http://hellohtml5.com/2019/04/25/best-way-to-disable-capslock-delay-on-mac/"/>
    <updated>2019-04-25T00:00:00+08:00</updated>
-   <id>http://localhost:4000/2019/04/25/best-way-to-disable-capslock-delay-on-mac</id>
+   <id>http://hellohtml5.com/2019/04/25/best-way-to-disable-capslock-delay-on-mac</id>
    <content type="html">&lt;p&gt;If you google “capslock delay mac”, you will see a lot of people is suffering by this &lt;strong&gt;Feature&lt;/strong&gt;. And there is no builtin method to turn it off.&lt;/p&gt;
 
 &lt;p&gt;Here is my method I’d like to share. May be this is the simplest one you can ever found on the internet and it is totally free! The solution supports all mac versions in theoretical. In my case, I have Sierra (10.12.6).&lt;/p&gt;
@@ -52,9 +52,9 @@
  
  <entry>
    <title>图片相似度计算，深入理解DCT变换以及感知哈希</title>
-   <link href="http://localhost:4000/tech/2018/11/15/DCT-explained/"/>
+   <link href="http://hellohtml5.com/tech/2018/11/15/DCT-explained/"/>
    <updated>2018-11-15T00:00:00+08:00</updated>
-   <id>http://localhost:4000/tech/2018/11/15/DCT-explained</id>
+   <id>http://hellohtml5.com/tech/2018/11/15/DCT-explained</id>
    <content type="html">&lt;h2 id=&quot;缘起&quot;&gt;缘起&lt;/h2&gt;
 &lt;p&gt;Android上硬件编解码一直是个老大难问题，就解码来说，硬解码本身并不困难，只要按照MediaCodec的流程开发即可。但由于系统碎片化，硬件规格不一致，硬件解码会到黑屏，花屏，绿屏之类的显示问题。为了不招致用户投诉，我们在做视频解码的时候不太敢开启硬件加速，一般会采用保守策略，即以软解为主，优先保证画面正常，但牺牲了性能。&lt;/p&gt;
 
@@ -242,9 +242,9 @@ cos(\frac{\pi}{4}) &amp; cos(\frac{3\pi}{4})
  
  <entry>
    <title>在Angularjs里正确$apply的方法</title>
-   <link href="http://localhost:4000/tech/2014/10/16/how-angularjs-apply-works/"/>
+   <link href="http://hellohtml5.com/tech/2014/10/16/how-angularjs-apply-works/"/>
    <updated>2014-10-16T00:00:00+08:00</updated>
-   <id>http://localhost:4000/tech/2014/10/16/how-angularjs-apply-works</id>
+   <id>http://hellohtml5.com/tech/2014/10/16/how-angularjs-apply-works</id>
    <content type="html">&lt;h1 id=&quot;数据视图绑定原理&quot;&gt;数据视图绑定原理&lt;/h1&gt;
 &lt;p&gt;我们都知道Angularjs的数据-视图绑定功能，如下面的这个视图&lt;/p&gt;
 
