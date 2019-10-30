@@ -1,5 +1,6 @@
 ---
 layout: page
+section: navbar
 title: 分类
 permalink: /category/
 ---

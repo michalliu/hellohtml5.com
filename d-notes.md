@@ -1,5 +1,6 @@
 ---
 layout: page
+section: navbar
 permalink: /notes/
 ---
 

@@ -1,5 +1,6 @@
 ---
 layout: page
+section: navbar
 title: 关于
 title2: About Me
 permalink: /about/
@@ -7,11 +8,11 @@ permalink: /about/
 
 My name is LYF. I'm a software engineer living at ShenZhen. I have years of experience on fullstack web development. For the last couple of years, I developes Android Apps. The name of the blog came from a collection of essays written by [LuXun](https://en.wikipedia.org/wiki/Lu_Xun) in 1932 - Dawn Blossoms Plucked at Dusk(Zhao Hua Xi Shi).
 
-Project
+Amateur Projects
 --------
-[Cubian](http://cubian.org) A popluar Linux OS created for cubieboard. 2013-2014
-
 [Open-JS](https://github.com/michalliu/open-js) A Javascript library to connect Tencent Weibo with app. 2011
+
+[Cubian](http://cubian.org) A popluar Linux OS created for cubieboard. 2013-2014
 
 [gvimim](https://github.com/michalliu/gvimim) [gvimim-macvim](https://github.com/michalliu/gvimim-macvim) [jsruntime.vim](https://github.com/michalliu/jsruntime.vim) [jsoncodecs](https://github.com/michalliu/jsoncodecs.vim) [jsflakes.vim](https://github.com/michalliu/jsflakes.vim) [sourcebeautify.vim](https://github.com/michalliu/sourcebeautify.vim) [haml-instant](https://github.com/michalliu/haml-instant) As a VIM fans, I created series of projects related with VIM.
 
@@ -28,4 +29,6 @@ GitHub: [michalliu](https://github.com/michalliu)
 StackOverflow: [me](https://stackoverflow.com/users/897889/)
 
 Email: michalliu AT foxmail DOT com
+
+[阅读中文版](/%E5%85%B3%E4%BA%8E)
 

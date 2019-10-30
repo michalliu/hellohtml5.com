@@ -1,5 +1,6 @@
 ---
 layout: page
+section: navbar
 title: 标签
 permalink: /tag/
 ---
