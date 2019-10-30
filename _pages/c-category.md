@@ -2,6 +2,7 @@
 layout: page
 section: navbar
 title: 分类
+simple: True
 permalink: /category/
 ---
 {% for category in site.categories %}[{{ category | first }}](#{{ category | first }}) {% endfor %}

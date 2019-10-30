@@ -28,7 +28,8 @@ description:         'HTML5 · Android · Debian · Docker · Git · Vim'
 url:                 http://hellohtml5.com
 baseurl:             /
 paginate:            1
-exclude:             [ README.md, newpost.rb, CNAME, Gemfile, Gemfile.lock, LICENSE.md ]
+exclude:             [ README.md, newpost.rb, CNAME, Gemfile, Gemfile.lock, LICENSE.md, shell.sh ]
+include:             ['_pages']
 
 collections:
   notes:

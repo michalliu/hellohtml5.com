@@ -2,6 +2,7 @@
 layout: page
 section: navbar
 title: 存档
+simple: True
 permalink: /archive/
 ---
 {% assign post_year1 = "" %}

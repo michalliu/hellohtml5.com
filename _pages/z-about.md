@@ -3,6 +3,7 @@ layout: page
 section: navbar
 title: 关于
 title2: About Me
+simple: True
 permalink: /about/
 ---
 

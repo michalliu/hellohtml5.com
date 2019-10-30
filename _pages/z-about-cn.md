@@ -1,6 +1,7 @@
 ---
 layout: page
 title2: 关于我
+simple: True
 permalink: /关于/
 ---
 

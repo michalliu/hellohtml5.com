@@ -2,6 +2,7 @@
 layout: page
 section: navbar
 title: 标签
+simple: True
 permalink: /tag/
 ---
 {% for tag in site.tags %}[{{ tag | first }}](#{{ tag | first }}) {% endfor %}

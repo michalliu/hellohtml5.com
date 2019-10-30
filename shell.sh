@@ -1,8 +1,9 @@
 #!/bin/sh
-cmd=
 if [ -z "$1" ];then
-	cmd="serve"
+	echo "$0 build|serve"
+	exit 0
 fi
-if [ "$cmd" = "serve" ];then
-	bundle exec jekyll serve
+if [ "$1" = "build" ];then
+	rm -rvf _site
 fi
+bundle exec jekyll $1
