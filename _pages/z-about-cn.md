@@ -5,7 +5,7 @@ simple: True
 permalink: /关于/
 ---
 
-Hey! 我是 LYF，是一名资深的软件工程师，目前居住深圳。我有数年的全栈Web开发经验。在过去的几年里，我主要开发Android平台应用。本博客的名字来源于[鲁迅先生]((https://en.wikipedia.org/wiki/Lu_Xun))的散文集《朝闻夕拾》。
+Hey! 我是 LYF，是一名资深的软件工程师，目前居住深圳。我有数年的全栈Web开发经验。在过去的几年里，我主要开发Android平台应用。本博客的名字来源于[鲁迅先生]((https://en.wikipedia.org/wiki/Lu_Xun))的散文集《朝花夕拾》。
 
 业余项目
 --------
