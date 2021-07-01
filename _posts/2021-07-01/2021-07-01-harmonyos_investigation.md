@@ -1,8 +1,8 @@
 ---
 layout: post
 title: 不吹不擂，一文看懂鸿蒙
-categories:
-tags:
+categories: [Tech]
+tags: [HarmonyOS]
 ---
 
 导语：华为鸿蒙OS是否Android套皮，有什么创新，是否自主研发完全开源，本文带你深入鸿蒙的世界。

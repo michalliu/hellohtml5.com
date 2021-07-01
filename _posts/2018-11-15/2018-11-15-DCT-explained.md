@@ -1,9 +1,9 @@
 ---
 layout: post
 title: 图片相似度计算，深入理解DCT变换以及感知哈希
+categories: [Tech]
 tags:
     - CV
-categories: [Tech]
 ---
 缘起
 -------------------------------------------------

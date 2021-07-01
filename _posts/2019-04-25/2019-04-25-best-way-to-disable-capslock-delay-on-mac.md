@@ -1,8 +1,8 @@
 ---
 layout: post
 title: Best way to disable capslock delay on mac
-categories:
-tags: Misc
+categories: [Tool]
+tags: [Tip]
 ---
 If you google "capslock delay mac", you will see a lot of people is suffering by this **Feature**. And there is no builtin method to turn it off.
 
