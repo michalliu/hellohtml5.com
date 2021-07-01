@@ -148,7 +148,7 @@
   
   <div class="post">
     <h1 class="post-title">
-      <a href="/2021/07/01/harmonyos_investigation/">
+      <a href="/tech/2021/07/01/harmonyos_investigation/">
         不吹不擂，一文看懂鸿蒙
       </a>
     </h1>
@@ -166,17 +166,17 @@
 
 <p>鸿蒙是个很泛的概念，鸿蒙不仅一个操作系统，还是一个生态。鸿蒙这个词在不同的场景下指代不同的东西。根据华为官方IDE<a href="https://developer.huawei.com/consumer/cn/deveco_studio"> DevEco Studio </a>的应用模板可以看出，目前鸿蒙支持的设备有手机，平板，电视，手表，汽车，以及相机等小家电等等，不同的技术栈开发的应用支持的设备种类也不同。其中Java类型的应用支持的设备类型最为丰富，JS类型的应用其次，C++应用支持的类型最少。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_template.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_template.png" /></div>
 
 <p>这些设备大体上可以分为嵌入式和非嵌入式两种。根据应用所需内存大小又可以分为L0-L5六个级别</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/device_level.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/device_level.png" /></div>
 
 <p><strong>在嵌入式领域，</strong>鸿蒙指是一款嵌入式操作系统，鸿蒙的核心为LiteOS，系统只能在配套的硬件（开发板）上运行，并非通用的操作系统，OpenHarmony是其对外开源的版本，在2020年9月在gitee上开源OpenHarmony 1.0，关于这款系统华为自身的文档比较欠缺，这里有较为详细的<a href="https://www.bookstack.cn/read/openharmony-1.0-zh-cn/Readme-CN.md">开发者文档</a>。</p>
 
 <p><strong>在非嵌入式领域，</strong>鸿蒙指的是一款叫鸿蒙的手机操作系统，最近网上热议的<a href="https://www.zhihu.com/question/435444581">“此应用专为旧版鸿蒙打造”</a>令人疑窦丛生。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/old_harmony.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/old_harmony.png" /></div>
 
 <p>因为截至目前鸿蒙只发布了一个版本，根本不存在所谓的旧版鸿蒙。由于鸿蒙的手机版操作系统并未开源，提示语又与android如此类似，不得不令人怀疑是字符串批量替换。那么事实真是字符串替换如此简单吗？下文将会予以分析。</p>
 
@@ -190,15 +190,15 @@
 
 <p>即开发出来的应用，可以覆盖多种类型的设备，屏蔽底层OS的差异，类似目前火热的<a href="https://flutter.dev/">Flutter</a>所解决的问题。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/device_compatibility.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/device_compatibility.png" /></div>
 
 <h2 id="2卡片式应用">2、卡片式应用</h2>
 
 <p>在多设备兼容的基础上带来一致的，高性能的交互体验。可以理解为跨设备，跨平台，跨网络的轻量Widget。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/card_ui.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/card_ui.png" /></div>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/card_ui_2.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/card_ui_2.png" /></div>
 
 <h2 id="3软总线">3、软总线</h2>
 
@@ -232,13 +232,13 @@
 </table>
 
 <p>（1）设备间的发现和连接：从手动发现，进化成自发现</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_1.jpg" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_1.jpg" /></div>
 
 <p>（2）多设备互联后的组网技术：软总线组网-异构网络组网</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_2.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_2.png" /></div>
 
 <p>（3）多设备多协议间的高效传输技术</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_3.jpg" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_3.jpg" /></div>
 
 <h2 id="4通信安全">4、通信安全</h2>
 
@@ -249,13 +249,13 @@
 （3）如何保证消费者数据安全?（正确使用数据）</p>
 
 <p>鸿蒙在系统和数据通信安全方面有较为完善的考虑。</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/security.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/security.png" /></div>
 
 <h1 id="三系统层分析">三、系统层分析</h1>
 
 <p>基于鸿蒙已经开源的<a href="https://gitee.com/openharmony">openharmony</a>源码统计，openharmony包含C代码2KW行，C++ 500W行。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/code_statistics.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/code_statistics.png" /></div>
 
 <h2 id="1内核部分">1、内核部分</h2>
 
@@ -293,7 +293,7 @@
   </tbody>
 </table>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/kernel_type.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/kernel_type.png" /></div>
 
 <p>微内核的优点：<br />
 1、代码量小，可以形式化验证，可以减少bug量，几乎可以0 bug，另外更加方便移植。<br />
@@ -306,7 +306,7 @@
 2、对于中断响应，需要映射到用户空间再处理，效率较低。<br />
 3、大量使用某些系统服务的时候，会导致进程上下文切换，增加系统负担。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/kernel_type_2.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/kernel_type_2.png" /></div>
 
 <p>而目前开源出来的鸿蒙代码 LiteOS-a按照业界对内核分类依旧是宏内核。至于华为是否存在微内核但没有开源，还是在实现鸿蒙过程中，又重新选择了宏内核，我们不得而知。</p>
 
@@ -314,13 +314,13 @@
 
 <p>LiteOS-M和HW以前开源的Lite OS基本相同，进行部分结构性调整，当前只适用于cortex-m3、cortex-m4、cortex-m7、risc-v芯片架构，是纯粹的RTOS系统，通过KAL与上层服务匹配。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/liteos_m.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/liteos_m.png" /></div>
 
 <h3 id="12-liteos-a">1.2 LiteOS-A</h3>
 
 <p>LiteOS-A是HW基于LiteOS进行演进的，进行 多进程，多核，虚拟内存，IPC等重新封装，尽量类似于Linux，但是尽量简化内核实现。OpenHarmony LiteOS-A内核架构图</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/liteos_a.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/liteos_a.png" /></div>
 
 <p>LiteOS-A是HW基于LiteOS进行演进的，进行 多进程，多核，虚拟内存，IPC等重新封装，尽量类似于Linux，但是尽量简化内核实现。</p>
 
@@ -402,7 +402,7 @@
 
 <h2 id="3多内核支持">3、多内核支持</h2>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/multi_kernel.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/multi_kernel.png" /></div>
 
 <p>如上图所示，对于鸿蒙OS，其可以支持各种内核（目前支持Liteos-m,LiteOS-a,Linux）。其通过KAL层对上层提供统一的API接口能力。
 我们可以清楚的看到KAL 支持统一是通过支持POSIX和CMSIS（针对arm Cotex-m 的抽象，做到在RTOS层面的尽量统一）对底层内核进行统一封装。做到基于上层API的程序可以在相应的CPU下编译通用，强调只能<strong>编译通用</strong>。<br />
@@ -418,11 +418,11 @@
 <h2 id="4hdf驱动架构">4、HDF驱动架构</h2>
 
 <p>OpenHarmony驱动主要部署在内核态，当前主要采用静态链接方式，随内核子系统编译和系统镜像打包。</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/hdf_1.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/hdf_1.png" /></div>
 
 <p>驱动框架交互流程</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/hdf_2.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/hdf_2.png" /></div>
 
 <p>如上图所示，发布设备服务，即在VFS创建固定的目录或者设备节点，并且通过HDI进行抽象。
 下列是相关系统的适配层，让相应的内核支持HDF能力。然后驱动开发工程师通过　drivers_framework　提供的相关框架能力，编写HDF支持的各种驱动，所以HDF统一驱动，是建立在对各种内核集成的HDF　内核支持驱动作为转换层。
@@ -430,10 +430,10 @@
 
 <p>相关源码目录是：</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/hdf_3.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/hdf_3.png" /></div>
 
 <p>下图是HDF-Framework层。用于支持HDF统一驱动的开发，加载生效或者卸载。</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/hdf_4.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/hdf_4.png" /></div>
 
 <p>通过代码中的uhdf/uhdf2可以看到，鸿蒙OS也在尝试将部分驱动放入用户空间，也就是向微内核（或者混合内核）方向演进。但如果是使用Linux内核，通常也可以使用标准的Linux内核驱动模型编写驱动。只是不方便移植到其他的鸿蒙非Linux内核的设备。不过不同的设备，其CPU与外设可能并不相同，分别编写也可能。</p>
 
@@ -441,25 +441,25 @@
 
 <p>鸿蒙提供的标准软件总线框架图</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_1.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_1.png" /></div>
 
 <p>主要代码目录如下图，lite和standard有一定差异。针对lite设备，只有发现，认证传输。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_2.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_2.png" /></div>
 
 <p>针对标准系统，则添加了组网，并且以client(SDK目录)+Server(core目录)的方式设计。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_3.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_3.png" /></div>
 
 <p>现在开源出来的openharmony方案总体约束为在同一局域网下进行软总线互通。目前开源出来的还是TCP/IP协议建立的局域网。鸿蒙发布会描述的极简协议统一层，我们并没有看到。</p>
 
 <p>软总线的时序图如下，Module可以看成分布式调度服务等，即其他使用软总线的模块。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_4.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_4.png" /></div>
 
 <p>对于pubulicService 对服务进行发布，实际同时对 软总线进行初始化。（前提是WiFi已经接入了WiFi的局域网）</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_5.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_5.png" /></div>
 
 <p>传输在上面的publicService过程中创建的会话服务 CreateSessionServer（）就是后续进行基于session会话服务的基础。
 调用者并不需要关心IP等，只需要使用创建的sessionID 进行通信即可。</p>
@@ -472,29 +472,29 @@
 
 <p>相关的代码：</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_6.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_6.png" /></div>
 
 <p>在StartBus()函数会调用StartSession()函数创建基于TCP的socket的会话管理服务。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_7.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_7.png" /></div>
 
 <p>循环监听服务来连接，数据传输。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_8.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_8.png" /></div>
 
 <p>简单总结，就是软总线的传输，是基于COAP发布服务，等待超级终端通过softbus的session进行传输。当client要访问某个设备（可以是远程，可以是本地）的服务，首行连接远程服务的session服务器，并发送数据。远程的session服务通过onBytesRecived接收到数据，并回调给module。而是用module的目的。发送数据调用SendBytes，就可以基于sessionID发送。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_9.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_9.png" /></div>
 
 <p>这个过程中，module也好，还是远程client的应用也好，都不需要知道服务在哪个地方，有软件总线进行处理即可，目前服务的发布只支持WiFi下的COAP。</p>
 
 <p>在代码中可以看到，未来支持的软总线设备有BLE，COAP，USB三种类型。</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_10.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_10.png" /></div>
 
 <p>推测软件总线之下应该还有一个针对复杂设备支持多层连接的适配层，以便屏蔽底层差异（当前只开源了WiFi和BT），包括支持上述设备的组网，路由以便构建一张局域网。根据当前的开源代码来看，主要还是基于wifi的局域网连接，其他形式自组网还未看到，但华为在通信这块有很深的功底，这里相信这个目标可以达成。</p>
 
 <p>基于目前公开的信息，软总线架构推测如下图：</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/softbus_detail_11.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/softbus_detail_11.png" /></div>
 
 <p>其中底层连接协议包括以太网、红外线、4G/5G/WiFi、BT、NFC等各种通信能力。目前NFC主要用于华为Card的认证，协助多设备之间的认证。</p>
 
@@ -573,7 +573,7 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>java应用在开发时依赖以下SDK包，只能用来编译代码，SDK反编译看不到源码，也未开源。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_1.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_1.png" /></div>
 
 <p>根据文件命名，对其功能推测如下</p>
 
@@ -618,7 +618,7 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>Java应用解压后的产物如下：</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_2.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_2.png" /></div>
 
 <p>这些文件的作用如下：</p>
 
@@ -651,11 +651,11 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>Java应用起来后用MainAbilityShellActivity承载，根据反编译后的壳代码分析，主要由HarmonyApplication完成对ability应用运行环境的初始化。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_3.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_3.png" /></div>
 
 <p>Java应用布局文件及显示效果如下图：</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_4.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_4.png" /></div>
 
 <p>dump出UI的绘制方式(adb shell uiautomator dump)，可以看到鸿蒙虽然定义了一套应用开发的DSL，但绘制部分还是用Android的UI控件来承载，非自绘UI。</p>
 
@@ -680,11 +680,11 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>Java应用的运行环境示意图：</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_5.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_5.png" /></div>
 
 <p>这里理解鸿蒙Android从设计上更类似QT跟Windows的关系，可以理解为在Android操作系统的基础上搭了一套自己的应用程序框架。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_6.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_6.png" /></div>
 
 <p>目前鸿蒙是跟Android深度绑定的，鸿蒙切换操作系统的可能性不是完全没有，但成本相当高，应该说鸿蒙Android的这个设计思路是既然摆脱不了安卓，基于这个前提，那么就充分利用它。</p>
 
@@ -700,14 +700,14 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>UI组件框架在 <a href="https://gitee.com/openharmony/ace_engine_lite">ace_engine_lite </a>里，从开源的代码我们看出支持的UI组件还比较丰富，除了常规的控件，还包含列表，动画等复杂控件的实现。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_7.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_7.png" /></div>
 
 <p>ace_engine_lite 负责维护UI组件的生命周期，事件通信，数据更新等，是逻辑层</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_8.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_8.png" /></div>
 
 <p>UI组件的显示层在 <a href="https://gitee.com/openharmony/graphic_ui">graphic_ui </a>工程中，例如下图为UIButton绘制的实现：</p>
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_9.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_9.png" /></div>
 
 <p>目前这个自绘的工程只有嵌入式的的实现，没有Android对应的实现。</p>
 
@@ -721,7 +721,7 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>Js应用在鸿蒙Android上会转换成Android的UI控件，Js应用解压后的产物如下：</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_10.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_10.png" /></div>
 
 <p>这些文件的作用如下</p>
 
@@ -758,7 +758,7 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>js应用布局文件及显示效果:</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/app_detail_11.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/app_detail_11.png" /></div>
 
 <p>dump出UI的绘制方式，可以看到Js应用的UI绘制，在鸿蒙Android上是用Android的UI控件来承载，非自绘UI。</p>
 
@@ -785,7 +785,7 @@ hdc app install xxx.hap</code></pre></figure>
 
 <p>鸿蒙OS并不定位于对Windows、Android进行替代，而是剑指万物互联时代全场景、多终端的操作系统，与此相对应，鸿蒙OS（及大华为体系）所有的生态布局也将围绕万物互联展开。鸿蒙OS在完成细分场景的拓展与跑马圈地后，鸿蒙OS将完善华为AIoT生态，进一步在智慧城市、车联网（深化）、工业互联网三方面发力推进。中长期来看，鸿蒙OS与华为“云+端”芯片形成强大合力，进军产业物联网。华为优质网络设备是IoT的连接基础，连接获得了大量数据，但只有通过智能分析才能够形成杀手级应用。华为已在云侧和端测拥有昇腾、鲲鹏、麒麟等芯片，具备强大算力，叠加鸿蒙OS高效、灵活的执行力，将培育大量高价值应用。基于近景和远景的生态蓝图，当前鸿蒙OS的发力抓手仍是以移动端为核心的HMS产业链。</p>
 
-<div class="image-wrapper" style="width:100%;"><img src="/2021/07/01/harmonyos_investigation/eco_system.png" /></div>
+<div class="image-wrapper" style="width:100%;"><img src="/tech/2021/07/01/harmonyos_investigation/eco_system.png" /></div>
 
   </div>
   
