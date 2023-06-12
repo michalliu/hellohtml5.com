@@ -11,9 +11,7 @@
 
   <title>
     
-        
-            朝闻夕拾
-        
+      安卓SecureBoot AVB实现原理分析 &middot; 朝闻夕拾
     
   </title>
 
@@ -52,7 +50,7 @@
   </div>
 
   <nav class="sidebar-nav">
-    <a class="sidebar-nav-item active" href="/">Home</a>
+    <a class="sidebar-nav-item" href="/">Home</a>
 
     
 
@@ -148,19 +146,10 @@
       </div>
 
       <div class="container content">
-        <div class="posts">
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="/tech/2023/06/12/%E5%AE%89%E5%8D%93secureboot-avb%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/">
-        安卓SecureBoot AVB实现原理分析
-      </a>
-    </h1>
-
-    <span class="post-date">12 Jun 2023</span>
-
-    <div class="pull-right default-page-qr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAABaElEQVR4nOWUsYrCQBCGZ3cDSWVshSQK9wTpFIS1u/e4FzAxjZWJVjanPoHvYWdASLp7AmFjhLTGaxJws5fWg4O59m66gY/l35l/fqqei8Jz/YOeEGNQGtd7TCiK76uj7Jd2pKsbipcU8ksKHSARVp+2B2v3i/9Y5fzkYXnWgFRrWIHC6cnIBO762KtJF8UrVSWbIYu4anD6d6l1h+u+1lYo3g59aU+s0nx4KF54KQuOwoPMQfH6jMPU0MzD+Ae93/qek7b7OlM9x/mhiFzwD6D8K+79B3zUM87LtYWcT14V9kh2YdBB8Ylp2MGWhaF4w/m5cfP3uYAUdiieL9cW1LBwkf4/Uw6fiR0kyHkOvFhThJlkhPNnvuG9ZhgvFcPpafMhD7YvtzTboPPBabc2tJDzpFBkfhaSAufPtkbLZGwm8oLlxdZgM7cfYfOBlVV7lac9Nh+kE4vpK/Je2nxgNw5mJXD3+6f7LyxgnOLBlxdzAAAAAElFTkSuQmCC" alt="http://hellohtml5.com"/></div>
-    <p>先让AI帮我们介绍下，来自ChatGPT(4.0) 的回答如下：</p>
+        <div class="post">
+  <h1 class="post-title">安卓SecureBoot AVB实现原理分析</h1>
+  <span class="post-date">12 Jun 2023</span>
+  <p>先让AI帮我们介绍下，来自ChatGPT(4.0) 的回答如下：</p>
 
 <blockquote>
   <p>Q：介绍Andorid verify boot流程，从CPU上电开始，一步一步的介绍，以安卓4.4为例，暂不考虑安卓7.0以上的系统。</p>
@@ -293,19 +282,37 @@ b. Secondary Bootloader（SBL）：SBL负责初始化更多的硬件组件（如
   <li><a href="https://en.wikipedia.org/wiki/Merkle_tree">默克尔树</a></li>
 </ol>
 
+  <div class="tags">
+    <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2023-06-12/2023-06-12-安卓secureboot-avb实现原理分析.md" class="pull-right">文章源码</a> <a href="/tag/#Android">#Android</a> 
   </div>
-  
+  <div class="pull-right" style="margin-top: 1rem;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAACi0lEQVR4nGP6jwqYGFDBKH/o8X/yxLw0Xa6h6ADlM9+fKNhYZMLfAOX/dzZjnrev/Cdc/+9Dc3s+/miA85lFwpXELx2A8Rn3TWq3aFvSDuP/VVQwLnTL2ggzj/3Ti58TT8fdPwDTX3T/w7G9L4xg9v85/rTmg/d7Jbj5pws3Ppi+ZAGMzxI+lztt77cUmP6fwXfLe5/z58DMZ+qsfOSdLHkBZt7/op3cakFeXnDzbhzz+OAoYwO3/wzvzdhn3fIw9Syf3WVz+72kYXyGnH0C0ksOZ8LU/wu33hro9mwbzLx/Sr7xre9dSmDq2eLsVj9ZaJIP4//T1P61P6FNER6eOW3Pt0WUP4XJM617U9a7vs0AZt6fr3avc+/2a8PsY+6vPls/j/ca3H/m5h/Vc+TsYfJ/2VivrWKNt4D71/TL/m2Fdttg8ixFoicLw2Z/gvuH7+4VvgBDXnj4nQo97Ll4wUkYn+mTuWiDrJUZzD5mfQZ5HvNvK2F8xhBtzt4DE57C1P/afvKA8Rn3QzA+q9Ka6oUbY9th6hnMDIr9dSvh4cUYZv4yv/ojJ9w9hZ7vy2U4jsPD64PizvaI6j6Y/r+qvszpJbk7YfrZtm/fMkvE4Ahc/bsmm37tBf4w9b9NSrs2cisYwP2jlVkwO2Tfarh7thlWiMuq74Knh012J0O0jvjA5P+dusXF63mVA8ZnK7nxTOMXcx9M/a+1PTMk9BdmwfVv5dpzaO7XzTD72Hu+PLC2vWAJc99P4Ysb3l2LfgsPz4c6b/u5woTg8eUY+N1TZsdJuPv+ivJscv3SBuczzSvVftFxA6ae8dDWig/fROH8vwqCZWFibjtgfPYPi//ePve8D+YeZDDKH9p8AKdpE/G+z54bAAAAAElFTkSuQmCC" alt="http://hellohtml5.com/tech/2023/06/12/%E5%AE%89%E5%8D%93secureboot-avb%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/"/></div>
 </div>
 
-<div class="pagination">
+<div class="pagination" style="clear:both;">
   
-    <a class="pagination-item older" href="/page2">Older</a>
+  <a class="pagination-item older" href="/tech/2021/07/01/harmonyos_investigation/">不吹不擂，一文看懂鸿蒙</a>
   
   
-    <span class="pagination-item newer">Newer</span>
+  <span class="pagination-item newer">Newer</span>
   
 </div>
-
+<script>
+  (function() {
+      if (location.pathname === '/') {
+          return;
+      }
+      var main = document.querySelector('.content');
+      var script = document.createElement('script');
+      script.src='https://utteranc.es/client.js';
+      script.setAttribute('repo', 'michalliu/hellohtml5.com');
+      script.setAttribute('issue-term', 'pathname');
+      script.setAttribute('label', '💬 文章点评');
+      script.setAttribute('theme', 'boxy-light');
+      script.setAttribute('crossorigin', 'anonymous');
+      main.appendChild(script);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://github.com/utterance/utterances">comments powered by utterances.</a></noscript>
 
       </div>
     </div>

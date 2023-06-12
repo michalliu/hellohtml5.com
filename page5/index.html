@@ -11,7 +11,9 @@
 
   <title>
     
-      在Angularjs里正确$apply的方法 &middot; 朝闻夕拾
+        
+            朝闻夕拾
+        
     
   </title>
 
@@ -146,10 +148,19 @@
       </div>
 
       <div class="container content">
-        <div class="post">
-  <h1 class="post-title">在Angularjs里正确$apply的方法</h1>
-  <span class="post-date">16 Oct 2014</span>
-  <h1 id="数据视图绑定原理">数据视图绑定原理</h1>
+        <div class="posts">
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/tech/2014/10/16/how-angularjs-apply-works/">
+        在Angularjs里正确$apply的方法
+      </a>
+    </h1>
+
+    <span class="post-date">16 Oct 2014</span>
+
+    <div class="pull-right default-page-qr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAABaElEQVR4nOWUsYrCQBCGZ3cDSWVshSQK9wTpFIS1u/e4FzAxjZWJVjanPoHvYWdASLp7AmFjhLTGaxJws5fWg4O59m66gY/l35l/fqqei8Jz/YOeEGNQGtd7TCiK76uj7Jd2pKsbipcU8ksKHSARVp+2B2v3i/9Y5fzkYXnWgFRrWIHC6cnIBO762KtJF8UrVSWbIYu4anD6d6l1h+u+1lYo3g59aU+s0nx4KF54KQuOwoPMQfH6jMPU0MzD+Ae93/qek7b7OlM9x/mhiFzwD6D8K+79B3zUM87LtYWcT14V9kh2YdBB8Ylp2MGWhaF4w/m5cfP3uYAUdiieL9cW1LBwkf4/Uw6fiR0kyHkOvFhThJlkhPNnvuG9ZhgvFcPpafMhD7YvtzTboPPBabc2tJDzpFBkfhaSAufPtkbLZGwm8oLlxdZgM7cfYfOBlVV7lac9Nh+kE4vpK/Je2nxgNw5mJXD3+6f7LyxgnOLBlxdzAAAAAElFTkSuQmCC" alt="http://hellohtml5.com"/></div>
+    <h1 id="数据视图绑定原理">数据视图绑定原理</h1>
 <p>我们都知道Angularjs的数据-视图绑定功能，如下面的这个视图</p>
 
 <figure class="highlight"><pre><code class="language-html" data-lang="html"><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">ng-controller</span><span class="o">=</span><span class="s">&quot;Ctrl&quot;</span><span class="p">&gt;</span>
@@ -367,37 +378,21 @@ $$phase保存$digest状态机的当前状态。</p>
 <script src="http://static.jsbin.com/js/embed.js"></script>
 
 
-  <div class="tags">
-    <a href="https://github.com/michalliu/hellohtml5.com/blob/master/_posts/2014-10-16/2014-10-16-how-angularjs-apply-works.md" class="pull-right">文章源码</a> <a href="/tag/#AngularJS">#AngularJS</a> 
   </div>
-  <div class="pull-right" style="margin-top: 1rem;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4AQAAAAARHwt/AAACZElEQVR4nN1VPWzTQBS+sxQ7XSrRDr0EEacDyUxYwkiXZKHMJANOJZxmoEgsTYKwz0bYZWFIhzqJlHghO12qDAkiC14Qexgat4I4A0aw1D+ipoyVXkckxG2n7977vvfdu3dMdHkx6PL6//YR5hilOY/rcgVT6Lw8k9CbZ2fNUD8H89mKTIMRI6AoDvNFScGt9HiZXqXnPl1RPsf3rtDL04AtSt+msuKBuJKOUdZBsWqDgXAc+XQ1R7oG4SOwvsAhc0sVu+uNBIRH2pGS7Z8fyTNsgfzzSfu4kj6dnQwGIH8yQYPB4uwJtVug/+1lzqhHykFeqIL6Yt7DnRPhdWildAjHll5Lcrd/aKkXChiPjWte/3Gmzf/6CfLfsl4tB2GTxbU0WJ94KJWN2HwadFiwvutWQNynPkXP34P+fclH8UbGdIu4D+pnHPSouoX3ecyD+llpkTOle2lJ2gD1U2ekNx2y6ThjUL9ASsUUQYeElED9LZU7mKi4mlTB+4uUfnyRF01xkxTB/Ox82v+UfnDHEMH+QX1fCxM+LSxtg/2HZ2pHlLe+03qnA+Y3U/U2fzNnoqoN5ncK2sXFFKjPcyBezulepclNWaEO1vdyp0zn2lqW6VKQf7hvhPkSlnspBPp3bJl7wrtEe1J0wXh1TRMXFWU2bA3B/vDcu7m31LU/cjLoj26MY9vSbr4jgf5HeMlCrHNK6054xfxanZaI6bjkBojb1HTH6m6PqPD8Q9FsJbRrFiI+jOPMgg5GrUAE/fkzv0bUv3ibOAvGK2lhw218WM9WpvD88ljeYxNfBV77F/6Lv7v/DQtXEvFgObrDAAAAAElFTkSuQmCC" alt="http://hellohtml5.com/tech/2014/10/16/how-angularjs-apply-works/"/></div>
+  
 </div>
 
-<div class="pagination" style="clear:both;">
+<div class="pagination">
   
-  <span class="pagination-item older">Older</span>
+    <span class="pagination-item older">Older</span>
   
   
-  <a class="pagination-item newer" href="/tech/2018/11/15/DCT-explained/">图片相似度计算，深入理解DCT变换以及感知哈希</a>
+    
+      <a class="pagination-item newer" href="/page4">Newer</a>
+    
   
 </div>
-<script>
-  (function() {
-      if (location.pathname === '/') {
-          return;
-      }
-      var main = document.querySelector('.content');
-      var script = document.createElement('script');
-      script.src='https://utteranc.es/client.js';
-      script.setAttribute('repo', 'michalliu/hellohtml5.com');
-      script.setAttribute('issue-term', 'pathname');
-      script.setAttribute('label', '💬 文章点评');
-      script.setAttribute('theme', 'boxy-light');
-      script.setAttribute('crossorigin', 'anonymous');
-      main.appendChild(script);
-  })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://github.com/utterance/utterances">comments powered by utterances.</a></noscript>
+
 
       </div>
     </div>
