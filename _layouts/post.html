@@ -9,7 +9,7 @@ layout: default
   <div class="tags">
     <a href="{{ site.github.repo }}/blob/master/{{ page.path }}" class="pull-right">文章源码</a> {% for tag in page.tags %}<a href="/tag/#{{ tag }}">#{{ tag }}</a> {% endfor %}
   </div>
-  <div class="pull-right" style="margin-top: 1rem;">{% qrcode `site.url` `page.url` fill:white color:black size:120 %}</div>
+  <div class="pull-right" style="margin-top: 1rem;">{% qrcode `site.url` `page.url` fill:white color:black size:160 %}</div>
 </div>
 
 <div class="pagination" style="clear:both;">
