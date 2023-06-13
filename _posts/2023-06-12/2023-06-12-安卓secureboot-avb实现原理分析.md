@@ -6,7 +6,7 @@ tags:
     - Android
 ---
 
-安卓的SecureBoot机制（Google官方叫Verified Boot）实现了完整的信任链，保护了系统完整性和合法性。先让AI帮我们介绍下，来自ChatGPT(4.0) 的回答如下：
+安卓的SecureBoot机制（Google官方叫Verified Boot）实现了完整的信任链，保护了系统的完整性和合法性，那么究竟具体是什么实现的呢，本文予以简单分析介绍。先让AI帮忙科普下，来自ChatGPT 4 的回答如下：
 
 >Q：介绍Andorid verify boot流程，从CPU上电开始，一步一步的介绍，以安卓4.4为例，暂不考虑安卓7.0以上的系统。
 >
