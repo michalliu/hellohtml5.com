@@ -120,7 +120,7 @@ DM-V机制适用于任意文件系统，但限制是该文件系统为只读文�
 
 以上一系列软硬结合的机制，完成了从硬件->bootloader->linux内核->文件系统的逐级信任链校验过程，保证了安卓系统ROM的完整性与合法性。
 
-本文只是介绍了AVB（**A**nroid  **V**erified **B**oot）的核心机制，真正完整的流程还是复杂的，请参考Google的官方文档，随着安卓的发展，系统的安全机制也在不断的变化，从AVB 1.0 进化到AVB 2.0，不过万变不离其宗，核心的还是本文介绍的这些机制，并没有太大的改变。
+本文只是介绍了AVB（**A**nroid  **V**erified **B**oot）的核心机制，真正完整的流程要复杂的多，请参考Google的官方文档，随着安卓的发展，系统的安全机制也在不断的变化，从AVB 1.0 进化到AVB 2.0，不过万变不离其宗，核心的还是本文介绍的这些机制，并没有太大的改变。
 
 {% include image.html img="2023-06-12-安卓secureboot-avb实现原理分析.assets/verified-boot-flow.png" attr="width:100%;"  caption="Android Verified Boot Flow" %}
 
