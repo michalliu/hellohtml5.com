@@ -6,7 +6,7 @@ tags:
     - Android
 ---
 
-先让AI帮我们介绍下，来自ChatGPT(4.0) 的回答如下：
+安卓的SecureBoot机制（Google官方叫Verified Boot）实现了完整的信任链，保护了系统完整性和合法性。先让AI帮我们介绍下，来自ChatGPT(4.0) 的回答如下：
 
 >Q：介绍Andorid verify boot流程，从CPU上电开始，一步一步的介绍，以安卓4.4为例，暂不考虑安卓7.0以上的系统。
 >
@@ -23,7 +23,7 @@ tags:
 >7. Android系统启动：在完成以上步骤后，Android系统将继续启动其他服务和应用程序，最终呈现给用户一个可操作的界面。
 >总结：Android 4.4的验证启动流程从CPU上电开始，通过多个阶段确保设备启动过程中的代码和数据的完整性和安全性。这些阶段包括Boot ROM、Bootloader（PBL和SBL）、Android Boot Image、Linux内核启动和dm-verity。
 
-我们看到，AI的“理解”和总结还是比较到位的。随着安卓的发展，系统的安全机制也在不断的变化，从AVB 1.0 进化到AVB 2.0。不过万变不离其宗，核心的还是本文介绍的这些机制，并没有太大的改变。我们来结合代码展开简要分析一下其实现细节。
+我们看到，AI的“理解”和总结还是比较到位的。那么究竟具体是什么实现的呢，我们来结合代码展开简要分析一下其实现细节。
 
 ## 背景知识
 
@@ -119,6 +119,10 @@ DM-V机制适用于任意文件系统，但限制是该文件系统为只读文�
 3. Linux内核使用device-mapper-verity机制校验system.img，加载rootfs。 
 
 以上一系列软硬结合的机制，完成了从硬件->bootloader->linux内核->文件系统的逐级信任链校验过程，保证了安卓系统ROM的完整性与合法性。
+
+本文只是介绍了AVB（**A**nroid  **V**erified **B**oot）的核心机制，真正完整的流程还是复杂的，请参考Google的官方文档，随着安卓的发展，系统的安全机制也在不断的变化，从AVB 1.0 进化到AVB 2.0，不过万变不离其宗，核心的还是本文介绍的这些机制，并没有太大的改变。
+
+{% include image.html img="2023-06-12-安卓secureboot-avb实现原理分析.assets/verified-boot-flow.png" attr="width:100%;"  caption="Android Verified Boot Flow" %}
 
 ### 参考文献
 1. [Verified Boot](https://source.android.com/docs/security/features/verifiedboot ) 
