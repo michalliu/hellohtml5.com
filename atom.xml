@@ -4,7 +4,7 @@
  <title>朝闻夕拾</title>
  <link href="http://hellohtml5.com/atom.xml" rel="self"/>
  <link href="http://hellohtml5.com/"/>
- <updated>2023-06-13T11:17:48+08:00</updated>
+ <updated>2023-06-13T11:22:38+08:00</updated>
  <id>http://hellohtml5.com</id>
  <author>
    <name>Mark Otto</name>
@@ -144,7 +144,7 @@ b. Secondary Bootloader（SBL）：SBL负责初始化更多的硬件组件（如
 
 &lt;p&gt;以上一系列软硬结合的机制，完成了从硬件-&amp;gt;bootloader-&amp;gt;linux内核-&amp;gt;文件系统的逐级信任链校验过程，保证了安卓系统ROM的完整性与合法性。&lt;/p&gt;
 
-&lt;p&gt;本文只是介绍了AVB（&lt;strong&gt;A&lt;/strong&gt;nroid  &lt;strong&gt;V&lt;/strong&gt;erified &lt;strong&gt;B&lt;/strong&gt;oot）的核心机制，真正完整的流程还是复杂的，请参考Google的官方文档，随着安卓的发展，系统的安全机制也在不断的变化，从AVB 1.0 进化到AVB 2.0，不过万变不离其宗，核心的还是本文介绍的这些机制，并没有太大的改变。&lt;/p&gt;
+&lt;p&gt;本文只是介绍了AVB（&lt;strong&gt;A&lt;/strong&gt;nroid  &lt;strong&gt;V&lt;/strong&gt;erified &lt;strong&gt;B&lt;/strong&gt;oot）的核心机制，真正完整的流程要复杂的多，请参考Google的官方文档，随着安卓的发展，系统的安全机制也在不断的变化，从AVB 1.0 进化到AVB 2.0，不过万变不离其宗，核心的还是本文介绍的这些机制，并没有太大的改变。&lt;/p&gt;
 
 &lt;div class=&quot;image-wrapper&quot; style=&quot;width:100%;&quot;&gt;&lt;img src=&quot;/tech/2023/06/12/%E5%AE%89%E5%8D%93secureboot-avb%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/2023-06-12-安卓secureboot-avb实现原理分析.assets/verified-boot-flow.png&quot; /&gt;&lt;p class=&quot;image-caption&quot;&gt;[&amp;nbsp;&lt;span&gt;Android Verified Boot Flow&amp;nbsp;&lt;/span&gt;]&lt;/p&gt;&lt;/div&gt;
 
