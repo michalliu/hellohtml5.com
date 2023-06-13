@@ -4,7 +4,7 @@
  <title>朝闻夕拾</title>
  <link href="http://hellohtml5.com/atom.xml" rel="self"/>
  <link href="http://hellohtml5.com/"/>
- <updated>2023-06-13T11:35:31+08:00</updated>
+ <updated>2023-06-13T11:58:41+08:00</updated>
  <id>http://hellohtml5.com</id>
  <author>
    <name>Mark Otto</name>
@@ -17,7 +17,7 @@
    <link href="http://hellohtml5.com/tech/2023/06/12/%E5%AE%89%E5%8D%93secureboot-avb%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/"/>
    <updated>2023-06-12T00:00:00+08:00</updated>
    <id>http://hellohtml5.com/tech/2023/06/12/安卓secureboot-avb实现原理分析</id>
-   <content type="html">&lt;p&gt;安卓的SecureBoot机制（Google官方叫Verified Boot）实现了完整的信任链，保护了系统完整性和合法性。先让AI帮我们介绍下，来自ChatGPT(4.0) 的回答如下：&lt;/p&gt;
+   <content type="html">&lt;p&gt;安卓的SecureBoot机制（Google官方叫Verified Boot）实现了完整的信任链，保护了系统的完整性和合法性，那么究竟具体是什么实现的呢，本文予以简单分析介绍。先让AI帮忙科普下，来自ChatGPT 4 的回答如下：&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;Q：介绍Andorid verify boot流程，从CPU上电开始，一步一步的介绍，以安卓4.4为例，暂不考虑安卓7.0以上的系统。&lt;/p&gt;
